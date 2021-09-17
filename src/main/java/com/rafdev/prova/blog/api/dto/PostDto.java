@@ -3,6 +3,7 @@ package com.rafdev.prova.blog.api.dto;
 import com.rafdev.prova.blog.api.entity.Category;
 import com.rafdev.prova.blog.api.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,11 +16,11 @@ public class PostDto {
     private String imageUrl;
     private String user = null;
     private String category = null;
-    private Date publishedAt;
+    private LocalDateTime publishedAt;
     private List<CommentDto> comments = new ArrayList<>();
 
     public PostDto(Long id, String title, String content, String imageUrl, User user, Category category,
-                   Date publishedAt, List<CommentDto> comments) {
+                   LocalDateTime publishedAt, List<CommentDto> comments) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -38,7 +39,7 @@ public class PostDto {
     }
 
     public PostDto(Long id, String title, String content, String imageUrl, User user, Category category,
-                   Date publishedAt) {
+                   LocalDateTime publishedAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -103,11 +104,11 @@ public class PostDto {
         this.category = category;
     }
 
-    public Date getPublishedAt() {
+    public LocalDateTime getPublishedAt() {
         return publishedAt;
     }
 
-    public void setPublishedAt(Date publishedAt) {
+    public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
     }
 

@@ -5,7 +5,6 @@ import com.rafdev.prova.blog.api.entity.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -99,7 +98,7 @@ public class Database {
                 String title = faker.hobbit().quote();
                 String content = faker.matz().quote();
                 String imageUrl = faker.internet().image();
-                Post post = new Post((long) l, title, content, imageUrl, user, category, new Date());
+                Post post = new Post((long) l, title, content, imageUrl, user, category, LocalDateTime.now());
                 post.setCreatedAt(LocalDateTime.now());
                 post.setUpdatedAt(null);
 
@@ -117,7 +116,7 @@ public class Database {
             Post post = posts.get(i - 1);
             for (int j = 1; j <= 10; j++) {
                 String content = faker.dune().saying();
-                Comment comment = new Comment((long) l, content, user, post, new Date());
+                Comment comment = new Comment((long) l, content, user, post, LocalDateTime.now());
                 comment.setCreatedAt(LocalDateTime.now());
                 comment.setUpdatedAt(null);
 
