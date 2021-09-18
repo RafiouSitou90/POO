@@ -16,38 +16,46 @@ public class HomeServiceImpl implements HomeService {
     @Override
     public List<Entrypoint> getEntryPoints() {
         final List<Entrypoint> apiEntryPointList = new ArrayList<>();
-        apiEntryPointList.add(getCategoryEntryPoint());
+        apiEntryPointList.add(getEntryPoint("Users", "User"));
+        apiEntryPointList.add(getEntryPoint("Categories", "Category"));
+        apiEntryPointList.add(getEntryPoint("Posts", "Post"));
+        apiEntryPointList.add(getEntryPoint("Comments", "Comment"));
 
         return apiEntryPointList;
     }
 
-    private Entrypoint getCategoryEntryPoint() {
-        Entrypoint categoryEntrypoint = new Entrypoint();
-        categoryEntrypoint.setName("Categories");
+    private Entrypoint getEntryPoint(String resourceNamePlural, String resourceNameSingle) {
+        Entrypoint entrypoint = new Entrypoint();
+        entrypoint.setName(resourceNamePlural);
 
-        List<Endpoint> categoryEndpoints = new ArrayList<>();
-        categoryEndpoints.add(new Endpoint(
-                "Categories list", "Get the full list of categories provided by the API.",
-                HttpMethod.GET, "categories"));
+        List<Endpoint> endpoints = new ArrayList<>();
+        endpoints.add(new Endpoint(
+                String.format("%s list", resourceNamePlural),
+                String.format("Get the full list of %s provided by the API.", resourceNamePlural.toLowerCase()),
+                HttpMethod.GET, resourceNamePlural.toLowerCase()));
 
-        categoryEndpoints.add(new Endpoint(
-                "Single category resource", "Get single category resource provided by the API.",
-                HttpMethod.GET, "categories/{id}"));
+        endpoints.add(new Endpoint(
+                String.format("Single %s resource", resourceNameSingle.toLowerCase()),
+                String.format("Get single %s resource provided by the API.", resourceNameSingle.toLowerCase()),
+                HttpMethod.GET, String.format("%s/{id}", resourceNamePlural.toLowerCase())));
 
-        categoryEndpoints.add(new Endpoint(
-                "Add category resource", "Add a single category resource in the API.",
+        endpoints.add(new Endpoint(
+                String.format("Add %s resource", resourceNameSingle.toLowerCase()),
+                String.format("Add a single %s resource in the API.", resourceNameSingle.toLowerCase()),
                 HttpMethod.POST, "categories"));
 
-        categoryEndpoints.add(new Endpoint(
-                "Update full category resource", "Update a single category resource in the API.",
-                HttpMethod.PUT, "categories/{id}"));
+        endpoints.add(new Endpoint(
+                String.format("Update full %s resource", resourceNameSingle.toLowerCase()),
+                String.format("Update a single %s resource in the API.", resourceNameSingle.toLowerCase()),
+                HttpMethod.PUT, String.format("%s/{id}", resourceNamePlural.toLowerCase())));
 
-        categoryEndpoints.add(new Endpoint(
-                "Delete category resource", "Delete a single category resource in the API.",
-                HttpMethod.DELETE, "categories/{id}"));
+        endpoints.add(new Endpoint(
+                String.format("Delete %s resource", resourceNameSingle.toLowerCase()),
+                String.format("Delete a single %s resource in the API.", resourceNameSingle.toLowerCase()),
+                HttpMethod.DELETE, String.format("%s/{id}", resourceNamePlural.toLowerCase())));
 
-        categoryEntrypoint.setEndpoints(categoryEndpoints);
+        entrypoint.setEndpoints(endpoints);
 
-        return categoryEntrypoint;
+        return entrypoint;
     }
 }
