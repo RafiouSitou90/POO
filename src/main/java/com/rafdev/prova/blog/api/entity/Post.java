@@ -1,7 +1,7 @@
 package com.rafdev.prova.blog.api.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class Post extends BaseEntity {
@@ -12,10 +12,10 @@ public class Post extends BaseEntity {
     private String imageUrl;
     private User user;
     private Category category;
-    private Date publishedAt;
+    private LocalDateTime publishedAt;
     private List<Comment> comments;
 
-    public Post(Long id, String title, String content, String imageUrl, User user, Category category, Date publishedAt) {
+    public Post(Long id, String title, String content, String imageUrl, User user, Category category, LocalDateTime publishedAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -74,11 +74,11 @@ public class Post extends BaseEntity {
         this.category = category;
     }
 
-    public Date getPublishedAt() {
+    public LocalDateTime getPublishedAt() {
         return publishedAt;
     }
 
-    public void setPublishedAt(Date publishedAt) {
+    public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
     }
 

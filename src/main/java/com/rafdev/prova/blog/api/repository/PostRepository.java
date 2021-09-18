@@ -51,7 +51,7 @@ public class PostRepository {
         return null;
     }
 
-    public Post findByEmail(String title) {
+    public Post findByTitle(String title) {
         for (Post post: posts) {
             if (post.getTitle().equals(title)) {
                 return post;

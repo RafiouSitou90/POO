@@ -3,6 +3,7 @@ package com.rafdev.prova.blog.api.dto;
 import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class CommentDto {
@@ -11,9 +12,9 @@ public class CommentDto {
     private String content;
     private String user;
     private String post;
-    private Date publishedAt;
+    private LocalDateTime publishedAt;
 
-    public CommentDto(Long id, String content, User user, Post post, Date publishedAt) {
+    public CommentDto(Long id, String content, User user, Post post, LocalDateTime publishedAt) {
         this.id = id;
         this.content = content;
 
@@ -28,7 +29,7 @@ public class CommentDto {
         this.publishedAt = publishedAt;
     }
 
-    public CommentDto(Long id, String content, User user, Date publishedAt) {
+    public CommentDto(Long id, String content, User user, LocalDateTime publishedAt) {
         this.id = id;
         this.content = content;
 
@@ -71,11 +72,11 @@ public class CommentDto {
         this.post = post;
     }
 
-    public Date getPublishedAt() {
+    public LocalDateTime getPublishedAt() {
         return publishedAt;
     }
 
-    public void setPublishedAt(Date publishedAt) {
+    public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
     }
 
