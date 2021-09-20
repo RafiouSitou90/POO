@@ -8,12 +8,21 @@ public class ErrorDetails {
     private int status;
     private String error;
     private String message;
+    private Object errors;
 
     public ErrorDetails(LocalDateTime timestamp, int status, String error, String message) {
         this.timestamp = timestamp;
         this.status = status;
         this.error = error;
         this.message = message;
+    }
+
+    public ErrorDetails(LocalDateTime timestamp, int status, String error, String message, Object errors) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.error = error;
+        this.message = message;
+        this.errors = errors;
     }
 
     public LocalDateTime getTimestamp() {
@@ -46,5 +55,13 @@ public class ErrorDetails {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Object getErrors() {
+        return errors;
+    }
+
+    public void setErrors(Object errors) {
+        this.errors = errors;
     }
 }

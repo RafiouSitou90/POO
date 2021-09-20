@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -23,12 +24,13 @@ public class UserController {
     }
 
     @PostMapping("")
-    public ResponseEntity<UserDto> saveUser(@RequestBody UserRequest userRequest) throws ResourceAlreadyExistsException {
+    public ResponseEntity<UserDto> saveUser(@RequestBody @Valid UserRequest userRequest)
+            throws ResourceAlreadyExistsException {
         return new ResponseEntity<>(userService.saveUser(userRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUserById(@PathVariable("id") Long id, @RequestBody UserRequest userRequest)
+    public ResponseEntity<UserDto> updateUserById(@PathVariable("id") Long id, @Valid @RequestBody UserRequest userRequest)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
         return new ResponseEntity<>(userService.updateUserById(id, userRequest), HttpStatus.OK);
     }
