@@ -1,8 +1,14 @@
 package com.rafdev.prova.blog.api.request;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 public class CommentRequest {
 
+    @NotBlank
+    @Size(min =10)
     private String content;
+
     private Long userId;
     private Long postId;
 

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,13 +23,14 @@ public class CommentController {
     }
 
     @PostMapping("")
-    public ResponseEntity<CommentDto> saveComment(@RequestBody CommentRequest commentRequest) throws ResourceNotFoundException {
+    public ResponseEntity<CommentDto> saveComment(@RequestBody @Valid CommentRequest commentRequest)
+            throws ResourceNotFoundException {
         return new ResponseEntity<>(commentService.saveComment(commentRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CommentDto> updateCommentById(@PathVariable("id") Long id,
-                                                        @RequestBody CommentRequest commentRequest)
+                                                        @RequestBody @Valid CommentRequest commentRequest)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(commentService.updateCommentById(id, commentRequest), HttpStatus.OK);
     }

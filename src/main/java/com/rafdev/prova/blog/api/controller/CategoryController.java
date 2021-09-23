@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
 import com.rafdev.prova.blog.api.dto.CategoryDto;
+import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.CategoryRequest;
 import com.rafdev.prova.blog.api.service.CategoryService;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,13 +24,14 @@ public class CategoryController {
     }
 
     @PostMapping("")
-    public ResponseEntity<CategoryDto> saveCategory(@RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryDto> saveCategory(@RequestBody @Valid CategoryRequest categoryRequest)
+            throws ResourceAlreadyExistsException {
         return new ResponseEntity<>(categoryService.saveCategory(categoryRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDto> updateCategoryById(@PathVariable("id") Long id,
-                                                          @RequestBody CategoryRequest categoryRequest)
+                                                          @RequestBody @Valid CategoryRequest categoryRequest)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(categoryService.updateCategoryById(id, categoryRequest), HttpStatus.OK);
     }

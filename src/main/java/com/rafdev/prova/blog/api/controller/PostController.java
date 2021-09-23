@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -23,14 +24,14 @@ public class PostController {
     }
 
     @PostMapping("")
-    public ResponseEntity<PostDto> savePost(@RequestBody PostRequest postRequest)
+    public ResponseEntity<PostDto> savePost(@RequestBody @Valid PostRequest postRequest)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
         return new ResponseEntity<>(postService.savePost(postRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PostDto> updatePostById(@PathVariable("id") Long id,
-                                                  @RequestBody PostRequest postRequest)
+                                                  @RequestBody @Valid PostRequest postRequest)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
         return new ResponseEntity<>(postService.updatePostById(id, postRequest), HttpStatus.OK);
     }
