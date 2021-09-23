@@ -42,7 +42,7 @@ public class HomeServiceImpl implements HomeService {
         endpoints.add(new Endpoint(
                 String.format("Add %s resource", resourceNameSingle.toLowerCase()),
                 String.format("Add a single %s resource in the API.", resourceNameSingle.toLowerCase()),
-                HttpMethod.POST, "categories"));
+                HttpMethod.POST, resourceNamePlural.toLowerCase()));
 
         endpoints.add(new Endpoint(
                 String.format("Update full %s resource", resourceNameSingle.toLowerCase()),
