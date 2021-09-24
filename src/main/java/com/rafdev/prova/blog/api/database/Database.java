@@ -57,7 +57,7 @@ public class Database {
             String email = faker.internet().emailAddress(username);
             String firstName = faker.name().firstName();
             String lastName = faker.name().lastName();
-            String password = faker.internet().password();
+            String password = "123456789";
             List<Role> userRoles = new ArrayList<>();
 
             if (i <= 3) {

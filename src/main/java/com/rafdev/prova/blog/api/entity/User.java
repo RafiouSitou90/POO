@@ -77,4 +77,8 @@ public class User extends BaseEntity {
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
+
+    public String getFullName() {
+        return String.format("%s %s", this.firstName, this.lastName);
+    }
 }
