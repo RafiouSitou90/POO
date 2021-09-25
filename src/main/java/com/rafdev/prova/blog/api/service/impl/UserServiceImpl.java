@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
         User userCreated = userRepository.save(user);
 
-        return setUserDTO(userCreated);
+        return new UserDto(userCreated);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException(resourceName, "Id", id);
         }
 
-        return setUserDTO(user);
+        return new UserDto(user);
     }
 
     @Override
@@ -130,12 +130,7 @@ public class UserServiceImpl implements UserService {
 
         User userUpdated = userRepository.update(userFound);
 
-        return setUserDTO(userUpdated);
-    }
-
-    private UserDto setUserDTO(User user) {
-        return new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getFirstName(),
-                user.getLastName(), user.getRoles());
+        return new UserDto(userUpdated);
     }
 
     private List<Role> setUserRoles(List<String> strRoles) {

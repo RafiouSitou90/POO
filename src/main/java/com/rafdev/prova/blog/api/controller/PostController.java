@@ -15,6 +15,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/posts")
+//@PreAuthorize("hasRole('USER')")
+//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
 public class PostController {
 
     private final PostService postService;

@@ -8,6 +8,7 @@ import com.rafdev.prova.blog.api.service.CategoryService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -15,6 +16,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/categories")
+//@PreAuthorize("hasRole('USER')")
+//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
 public class CategoryController {
 
     private final CategoryService categoryService;

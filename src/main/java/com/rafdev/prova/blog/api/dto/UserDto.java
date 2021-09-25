@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.dto;
 
 import com.rafdev.prova.blog.api.entity.Role;
+import com.rafdev.prova.blog.api.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,19 @@ public class UserDto {
         this.firstName = firstName;
         this.lastName = lastName;
         this.fullName = String.format("%s %s", firstName, lastName);
+        this.roles = strRoles;
+    }
+
+    public UserDto(User user) {
+        List<String> strRoles = new ArrayList<>();
+        user.getRoles().forEach(role -> strRoles.add(role.getName().toString()));
+
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.fullName = user.getFullName();
         this.roles = strRoles;
     }
 

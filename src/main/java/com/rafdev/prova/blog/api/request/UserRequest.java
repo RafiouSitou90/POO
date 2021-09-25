@@ -8,7 +8,7 @@ import java.util.List;
 public class UserRequest {
 
     @NotBlank
-    @Size(min = 4, max = 100)
+    @Size(min = 6, max = 100)
     private String username;
 
     @NotBlank
@@ -50,5 +50,9 @@ public class UserRequest {
 
     public List<String> getRoles() {
         return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 }

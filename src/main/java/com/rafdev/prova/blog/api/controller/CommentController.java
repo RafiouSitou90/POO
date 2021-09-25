@@ -14,6 +14,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/comments")
+//@PreAuthorize("hasRole('USER')")
+//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
 public class CommentController {
 
     private final CommentService commentService;
