@@ -2,7 +2,6 @@ package com.rafdev.prova.blog.api.controller;
 
 import com.rafdev.prova.blog.api.dto.UserDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
-import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.SignInRequest;
 import com.rafdev.prova.blog.api.request.UserRequest;
 import com.rafdev.prova.blog.api.response.TokenResponse;
@@ -30,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<TokenResponse> signIn(@RequestBody @Valid SignInRequest signInRequest)
-            throws ResourceNotFoundException {
+            throws Exception {
 
         TokenResponse tokenResponse = authService.signIn(signInRequest);
         HttpHeaders headers = new HttpHeaders();

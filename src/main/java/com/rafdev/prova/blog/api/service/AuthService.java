@@ -7,7 +7,7 @@ import com.rafdev.prova.blog.api.response.TokenResponse;
 
 public interface AuthService {
 
-    TokenResponse signIn(SignInRequest signInRequest);
+    TokenResponse signIn(SignInRequest signInRequest) throws Exception;
 
     UserDto signUp(UserRequest signUpRequest);
 }

@@ -11,6 +11,7 @@ public class User extends BaseEntity {
     private String firstName;
     private String lastName;
     private List<Role> roles;
+    private String token;
 
     public User(Long id, String username, String email, String password, String firstName, String lastName, List<Role> roles) {
         this.id = id;
@@ -20,6 +21,7 @@ public class User extends BaseEntity {
         this.firstName = firstName;
         this.lastName = lastName;
         this.roles = roles;
+        this.token = null;
     }
 
     public Long getId() {
@@ -80,5 +82,13 @@ public class User extends BaseEntity {
 
     public String getFullName() {
         return String.format("%s %s", this.firstName, this.lastName);
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

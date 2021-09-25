@@ -71,6 +71,16 @@ public class UserRepository {
         return null;
     }
 
+    public User findByToken(String token) {
+        for (User user: users) {
+            if (user.getToken() != null && user.getToken().equals(token)) {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
     public boolean existsByUsername(String username) {
         for (User user: users) {
             if (user.getUsername().equals(username)) {
