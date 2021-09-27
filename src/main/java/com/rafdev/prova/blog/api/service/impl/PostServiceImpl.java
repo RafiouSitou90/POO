@@ -70,7 +70,7 @@ public class PostServiceImpl implements PostService {
 
         Post postCreated = postRepository.save(post);
 
-        return setPostDto(postCreated);
+        return new PostDto(postCreated);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class PostServiceImpl implements PostService {
 
         Post postUpdated = postRepository.update(postFound);
 
-        return setPostDto(postUpdated);
+        return new PostDto(postUpdated);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class PostServiceImpl implements PostService {
         List<Post> posts = postRepository.findAll();
 
         for (Post post: posts) {
-            postsDto.add(setPostDto(post));
+            postsDto.add(new PostDto(post));
         }
 
         return postsDto;
@@ -140,23 +140,16 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post.getId());
     }
 
-    private PostDto setPostDto(Post post) {
-        return new PostDto(post.getId(), post.getTitle(), post.getContent(), post.getImageUrl(), post.getUser(),
-                post.getCategory(), post.getPublishedAt());
-    }
-
     private PostDto setPostDtoWithComment(Post post) {
         List<Comment> commentsList = commentRepository.findAllByPostId(post.getId());
         List<CommentDto> commentsListDto = new ArrayList<>();
 
         for (Comment comment: commentsList) {
-            CommentDto commentDto = new CommentDto(comment.getId(), comment.getContent(), comment.getUser(),
-                    comment.getPost(), comment.getPublishedAt());
+            CommentDto commentDto = new CommentDto(comment);
 
             commentsListDto.add(commentDto);
         }
 
-        return new PostDto(post.getId(), post.getTitle(), post.getContent(), post.getImageUrl(), post.getUser(),
-                post.getCategory(), post.getPublishedAt(), commentsListDto);
+        return new PostDto(post, commentsListDto);
     }
 }

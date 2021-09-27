@@ -34,7 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = new Category(idCounter.incrementAndGet(), categoryRequest.getName());
         Category categoryCreated = categoryRepository.save(category);
 
-        return setCategoryDto(categoryCreated);
+        return new CategoryDto(categoryCreated);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category categoryUpdated = categoryRepository.update(categoryFound);
 
-        return setCategoryDto(categoryUpdated);
+        return new CategoryDto(categoryUpdated);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categories = categoryRepository.findAll();
 
         for (Category category: categories) {
-            CategoryDto categoryDto = new CategoryDto(category.getId(), category.getName());
+            CategoryDto categoryDto = new CategoryDto(category);
 
             categoriesDto.add(categoryDto);
         }
@@ -74,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ResourceNotFoundException(resourceName, "Id", id);
         }
 
-        return setCategoryDto(category);
+        return new CategoryDto(category);
     }
 
     @Override
@@ -86,9 +86,5 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         categoryRepository.delete(category.getId());
-    }
-
-    private CategoryDto setCategoryDto(Category category) {
-        return new CategoryDto(category.getId(), category.getName());
     }
 }

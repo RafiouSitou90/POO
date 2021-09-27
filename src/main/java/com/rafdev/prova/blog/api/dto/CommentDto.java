@@ -1,10 +1,10 @@
 package com.rafdev.prova.blog.api.dto;
 
+import com.rafdev.prova.blog.api.entity.Comment;
 import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.entity.User;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class CommentDto {
 
@@ -14,30 +14,19 @@ public class CommentDto {
     private String post;
     private LocalDateTime publishedAt;
 
-    public CommentDto(Long id, String content, User user, Post post, LocalDateTime publishedAt) {
-        this.id = id;
-        this.content = content;
+    public CommentDto(Comment comment) {
+        this.id = comment.getId();
+        this.content = comment.getContent();
 
-        if (user != null) {
-            this.user = getResourcePath("users", user.getId());
+        if (comment.getUser() != null) {
+            this.user = getResourcePath("users", comment.getUser().getId());
         }
 
-        if (post != null) {
-            this.post = getResourcePath("posts", post.getId());
+        if (comment.getPost() != null) {
+            this.post = getResourcePath("posts", comment.getPost().getId());
         }
 
-        this.publishedAt = publishedAt;
-    }
-
-    public CommentDto(Long id, String content, User user, LocalDateTime publishedAt) {
-        this.id = id;
-        this.content = content;
-
-        if (user != null) {
-            this.user = getResourcePath("users", user.getId());
-        }
-
-        this.publishedAt = publishedAt;
+        this.publishedAt = comment.getPublishedAt();
     }
 
     public Long getId() {

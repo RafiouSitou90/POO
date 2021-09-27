@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException exception, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(), exception.getMessage());
+                HttpStatus.NOT_FOUND.getReasonPhrase(), exception.getMessage(), new ArrayList<>());
 
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
@@ -33,7 +33,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleResourceAlreadyExistsException(
             ResourceAlreadyExistsException exception, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(), exception.getMessage());
+                HttpStatus.BAD_REQUEST.getReasonPhrase(), exception.getMessage(), new ArrayList<>());
+
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    // Handle Login Bad Credentials Exceptions
+    @ExceptionHandler(LoginBadCredentialsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorDetails> handleLoginBadCredentialsException(
+            LoginBadCredentialsException exception, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(), exception.getMessage(), new ArrayList<>());
 
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
@@ -42,18 +53,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ResponseEntity<ErrorDetails> handleConstraintViolationException(MethodArgumentNotValidException exception) {
-        List<String> errors = new ArrayList<>();
+        List<String> details = new ArrayList<>();
 
         for (FieldError error : exception.getBindingResult().getFieldErrors()) {
-            errors.add(error.getField() + " -> " + error.getDefaultMessage());
+            details.add(error.getField() + " -> " + error.getDefaultMessage());
         }
 
         for (ObjectError error : exception.getBindingResult().getGlobalErrors()) {
-            errors.add(error.getObjectName() + " -> " + error.getDefaultMessage());
+            details.add(error.getObjectName() + " -> " + error.getDefaultMessage());
         }
 
         ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(), exception.getMessage(), errors);
+                HttpStatus.BAD_REQUEST.getReasonPhrase(), "Fields validation errors", details);
 
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }

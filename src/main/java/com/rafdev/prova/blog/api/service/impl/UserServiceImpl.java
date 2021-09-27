@@ -41,9 +41,7 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAll();
 
         for (User user: users) {
-            UserDto userDto = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getFirstName(),
-                    user.getLastName(),
-                    user.getRoles());
+            UserDto userDto = new UserDto(user);
 
             usersDto.add(userDto);
         }
@@ -127,6 +125,7 @@ public class UserServiceImpl implements UserService {
         userFound.setLastName(userRequest.getLastName());
         userFound.setRoles(roles);
         userFound.setUpdatedAt(LocalDateTime.now());
+        userFound.setToken(null);
 
         User userUpdated = userRepository.update(userFound);
 

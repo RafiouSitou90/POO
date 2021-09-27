@@ -54,7 +54,7 @@ public class CommentServiceImpl implements CommentService {
 
         Comment commentCreated = commentRepository.save(comment);
 
-        return setCommentDto(commentCreated);
+        return new CommentDto(commentCreated);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CommentServiceImpl implements CommentService {
 
         Comment commentUpdated = commentRepository.update(commentFound);
 
-        return setCommentDto(commentUpdated);
+        return new CommentDto(commentUpdated);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class CommentServiceImpl implements CommentService {
         List<CommentDto> commentsDto = new ArrayList<>();
 
         for (Comment comment: comments) {
-            commentsDto.add(setCommentDto(comment));
+            commentsDto.add(new CommentDto(comment));
         }
 
         return commentsDto;
@@ -93,7 +93,7 @@ public class CommentServiceImpl implements CommentService {
             throw new ResourceNotFoundException(resourceName, "Id", id);
         }
 
-        return setCommentDto(comment);
+        return new CommentDto(comment);
     }
 
     @Override
@@ -105,10 +105,5 @@ public class CommentServiceImpl implements CommentService {
         }
 
         commentRepository.delete(comment.getId());
-    }
-
-    private CommentDto setCommentDto(Comment comment) {
-        return new CommentDto(comment.getId(), comment.getContent(), comment.getUser(), comment.getPost(),
-                comment.getPublishedAt());
     }
 }

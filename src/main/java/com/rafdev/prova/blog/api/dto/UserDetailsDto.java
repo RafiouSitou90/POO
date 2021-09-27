@@ -18,8 +18,6 @@ public class UserDetailsDto implements UserDetails {
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsDto() {}
-
     public UserDetailsDto(Long id, String username, String email, String fullName, String password,
                           Collection<? extends GrantedAuthority> authorities) {
         this.id = id;

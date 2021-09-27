@@ -1,14 +1,13 @@
 package com.rafdev.prova.blog.api.exception;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class ErrorDetails {
     private LocalDateTime timestamp;
     private int status;
     private String error;
     private String message;
-    private Object errors;
+    private Object details;
 
     public ErrorDetails(LocalDateTime timestamp, int status, String error, String message) {
         this.timestamp = timestamp;
@@ -17,12 +16,12 @@ public class ErrorDetails {
         this.message = message;
     }
 
-    public ErrorDetails(LocalDateTime timestamp, int status, String error, String message, Object errors) {
+    public ErrorDetails(LocalDateTime timestamp, int status, String error, String message, Object details) {
         this.timestamp = timestamp;
         this.status = status;
         this.error = error;
         this.message = message;
-        this.errors = errors;
+        this.details = details;
     }
 
     public LocalDateTime getTimestamp() {
@@ -57,11 +56,11 @@ public class ErrorDetails {
         this.message = message;
     }
 
-    public Object getErrors() {
-        return errors;
+    public Object getDetails() {
+        return details;
     }
 
-    public void setErrors(Object errors) {
-        this.errors = errors;
+    public void setDetails(Object details) {
+        this.details = details;
     }
 }

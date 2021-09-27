@@ -1,13 +1,15 @@
 package com.rafdev.prova.blog.api.dto;
 
+import com.rafdev.prova.blog.api.entity.Category;
+
 public class CategoryDto {
 
     private Long id;
     private String name;
 
-    public CategoryDto(Long id, String name) {
-        this.id = id;
-        this.name = name;
+    public CategoryDto(Category category) {
+        this.id = category.getId();
+        this.name = category.getName();
     }
 
     public Long getId() {
