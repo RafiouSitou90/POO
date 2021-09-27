@@ -48,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (BadCredentialsException exception) {
-            throw  new Exception("INVALID_CREDENTIALS", exception);
+            throw new Exception("INVALID_CREDENTIALS", exception);
         }
 
         final UserDetailsDto userDetails =

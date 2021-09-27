@@ -16,19 +16,6 @@ public class UserDto {
     private String fullName;
     private List<String> roles;
 
-    public UserDto(Long id, String username, String email, String firstName, String lastName, List<Role> roles) {
-        List<String> strRoles = new ArrayList<>();
-        roles.forEach(role -> strRoles.add(role.getName().toString()));
-
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.fullName = String.format("%s %s", firstName, lastName);
-        this.roles = strRoles;
-    }
-
     public UserDto(User user) {
         List<String> strRoles = new ArrayList<>();
         user.getRoles().forEach(role -> strRoles.add(role.getName().toString()));

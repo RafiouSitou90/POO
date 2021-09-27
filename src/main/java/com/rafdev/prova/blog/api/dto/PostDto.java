@@ -1,11 +1,11 @@
 package com.rafdev.prova.blog.api.dto;
 
 import com.rafdev.prova.blog.api.entity.Category;
+import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class PostDto {
@@ -19,41 +19,39 @@ public class PostDto {
     private LocalDateTime publishedAt;
     private List<CommentDto> comments = new ArrayList<>();
 
-    public PostDto(Long id, String title, String content, String imageUrl, User user, Category category,
-                   LocalDateTime publishedAt, List<CommentDto> comments) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.imageUrl = imageUrl;
+    public PostDto(Post post) {
+        this.id = post.getId();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.imageUrl = post.getImageUrl();
 
-        if (user != null) {
-            this.user = getResourcePath("users", user.getId());
+        if (post.getUser() != null) {
+            this.user = getResourcePath("users", post.getUser().getId());
         }
 
-        if (category != null) {
-            this.category = getResourcePath("categories", category.getId());
+        if (post.getCategory() != null) {
+            this.category = getResourcePath("categories", post.getCategory().getId());
         }
 
-        this.publishedAt = publishedAt;
-        this.comments = comments;
+        this.publishedAt = post.getPublishedAt();
     }
 
-    public PostDto(Long id, String title, String content, String imageUrl, User user, Category category,
-                   LocalDateTime publishedAt) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.imageUrl = imageUrl;
+    public PostDto(Post post, List<CommentDto> commentsDtoList) {
+        this.id = post.getId();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.imageUrl = post.getImageUrl();
 
-        if (user != null) {
-            this.user = getResourcePath("users", user.getId());
+        if (post.getUser() != null) {
+            this.user = getResourcePath("users", post.getUser().getId());
         }
 
-        if (category != null) {
-            this.category = getResourcePath("categories", category.getId());
+        if (post.getCategory() != null) {
+            this.category = getResourcePath("categories", post.getCategory().getId());
         }
 
-        this.publishedAt = publishedAt;
+        this.publishedAt = post.getPublishedAt();
+        this.comments = commentsDtoList;
     }
 
     public Long getId() {
