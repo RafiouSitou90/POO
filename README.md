@@ -1,2 +1,3 @@
-# POO
-Java POO API Projects
+# Blog API
+
+Blog API based on Spring Boot framework.
