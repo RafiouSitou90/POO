@@ -3,6 +3,7 @@ package com.rafdev.prova.blog.api.service.impl;
 import com.rafdev.prova.blog.api.dto.UserDetailsDto;
 import com.rafdev.prova.blog.api.dto.UserDto;
 import com.rafdev.prova.blog.api.entity.User;
+import com.rafdev.prova.blog.api.exception.LoginBadCredentialsException;
 import com.rafdev.prova.blog.api.repository.UserRepository;
 import com.rafdev.prova.blog.api.request.SignInRequest;
 import com.rafdev.prova.blog.api.request.UserRequest;
@@ -40,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenResponse signIn(SignInRequest signInRequest) throws Exception {
+    public TokenResponse signIn(SignInRequest signInRequest) throws LoginBadCredentialsException {
         try {
             Authentication authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUsername(),
@@ -48,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (BadCredentialsException exception) {
-            throw new Exception("INVALID_CREDENTIALS", exception);
+            throw new LoginBadCredentialsException();
         }
 
         final UserDetailsDto userDetails =

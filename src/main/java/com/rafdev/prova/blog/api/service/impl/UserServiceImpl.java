@@ -135,7 +135,7 @@ public class UserServiceImpl implements UserService {
     private List<Role> setUserRoles(List<String> strRoles) {
         List<Role> roles = new ArrayList<>();
 
-        if (strRoles == null) {
+        if (strRoles == null || strRoles.isEmpty()) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER);
             roles.add(userRole);
         } else {
