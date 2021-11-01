@@ -1,21 +1,33 @@
 package com.rafdev.prova.blog.api.entity;
 
-public class Category extends BaseEntity {
+import com.github.slugify.Slugify;
+import com.rafdev.prova.blog.api.listener.CategoryListener;
 
-    private Long id;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.Table;
+
+@EntityListeners(CategoryListener.class)
+@Entity
+@Table(name = "tab_categories")
+public class Category extends AbstractBaseEntity {
+
+    @Column(nullable = false, unique = true)
     private String name;
 
-    public Category(Long id, String name) {
-        this.id = id;
+    @Column(nullable = false, unique = true)
+    private String slug;
+
+    public Category(String name) {
         this.name = name;
     }
 
-    public Long getId() {
-        return id;
+    public Category() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getSlug() {
+        return slug;
     }
 
     public String getName() {
@@ -25,4 +37,12 @@ public class Category extends BaseEntity {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void computeSlug() {
+        Slugify slugify = new Slugify();
+
+        this.slug = slugify.slugify(name);
+    }
+
+
 }

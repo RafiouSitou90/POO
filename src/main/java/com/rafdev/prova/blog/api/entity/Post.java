@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Post extends BaseEntity {
+public class Post extends AbstractBaseEntity {
 
     private Long id;
     private String title;

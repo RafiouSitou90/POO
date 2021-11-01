@@ -2,7 +2,7 @@ package com.rafdev.prova.blog.api.entity;
 
 import java.util.List;
 
-public class User extends BaseEntity {
+public class User extends AbstractBaseEntity {
 
     private Long id;
     private String username;

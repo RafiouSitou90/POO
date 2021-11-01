@@ -1,9 +1,8 @@
 package com.rafdev.prova.blog.api.entity;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
-public class Comment extends BaseEntity {
+public class Comment extends AbstractBaseEntity {
 
     private Long id;
     private String content;
