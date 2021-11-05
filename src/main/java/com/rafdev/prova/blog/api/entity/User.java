@@ -1,35 +1,37 @@
 package com.rafdev.prova.blog.api.entity;
 
+import javax.persistence.*;
 import java.util.List;
 
+@Entity
+@Table(name = "tab_users")
 public class User extends AbstractBaseEntity {
 
-    private Long id;
     private String username;
     private String email;
     private String password;
     private String firstName;
     private String lastName;
-    private List<Role> roles;
-    private String token;
 
-    public User(Long id, String username, String email, String password, String firstName, String lastName, List<Role> roles) {
-        this.id = id;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "tab_user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    )
+    private List<Role> roles;
+    private Boolean isEnabled = true;
+
+    public User() {
+    }
+
+    public User(String username, String email, String password, String firstName, String lastName, List<Role> roles) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.roles = roles;
-        this.token = null;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUsername() {
@@ -84,11 +86,11 @@ public class User extends AbstractBaseEntity {
         return String.format("%s %s", this.firstName, this.lastName);
     }
 
-    public String getToken() {
-        return token;
+    public Boolean getEnabled() {
+        return isEnabled;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setEnabled(Boolean enabled) {
+        isEnabled = enabled;
     }
 }
