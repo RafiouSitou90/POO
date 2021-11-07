@@ -9,12 +9,12 @@ import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.repository.RoleRepository;
 import com.rafdev.prova.blog.api.repository.UserRepository;
 import com.rafdev.prova.blog.api.request.UserRequest;
+import com.rafdev.prova.blog.api.service.RoleService;
 import com.rafdev.prova.blog.api.service.UserService;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,11 +29,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     @Override
@@ -41,7 +43,7 @@ public class UserServiceImpl implements UserService {
         List<UserDto> usersDto = new ArrayList<>();
         List<User> users = userRepository.findAll();
 
-        for (User user: users) {
+        for (User user : users) {
             UserDto userDto = new UserDto(user);
 
             usersDto.add(userDto);
@@ -64,7 +66,7 @@ public class UserServiceImpl implements UserService {
         List<Role> roles = setUserRoles(userRequest.getRoles());
 
         User user = new User(userRequest.getUsername(), userRequest.getEmail(),
-        getPasswordHashed(userRequest.getPassword()), userRequest.getFirstName(), userRequest.getLastName(), roles);
+                getPasswordHashed(userRequest.getPassword()), userRequest.getFirstName(), userRequest.getLastName(), roles);
 
         User userCreated = userRepository.save(user);
 
@@ -119,23 +121,15 @@ public class UserServiceImpl implements UserService {
         List<Role> roles = new ArrayList<>();
 
         if (strRoles == null || strRoles.isEmpty()) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER);
-            roles.add(userRole);
+            roles.add(getRole(ERole.ROLE_USER));
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
-                    case "super_admin" -> {
-                        Role superAdminRole = roleRepository.findByName(ERole.ROLE_SUPER_ADMIN);
-                        roles.add(superAdminRole);
-                    }
-                    case "admin" -> {
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN);
-                        roles.add(adminRole);
-                    }
-                    default -> {
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER);
-                        roles.add(userRole);
-                    }
+                    case "super_admin" -> roles.add(getRole(ERole.ROLE_SUPER_ADMIN));
+
+                    case "admin" -> roles.add(getRole(ERole.ROLE_ADMIN));
+
+                    default -> roles.add(getRole(ERole.ROLE_USER));
                 }
             });
         }
@@ -145,5 +139,9 @@ public class UserServiceImpl implements UserService {
 
     private User getUserOrThrowException(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
+
+    private Role getRole(ERole name) {
+        return roleService.getOrCreateByName(name);
     }
 }

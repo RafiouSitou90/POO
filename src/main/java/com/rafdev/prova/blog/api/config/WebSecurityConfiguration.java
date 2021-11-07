@@ -1,6 +1,6 @@
 package com.rafdev.prova.blog.api.config;
 
-import com.rafdev.prova.blog.api.utility.TokenFilter;
+import com.rafdev.prova.blog.api.util.jwt.TokenFilter;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

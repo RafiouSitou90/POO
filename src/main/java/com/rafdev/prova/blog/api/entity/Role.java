@@ -12,7 +12,7 @@ public class Role extends AbstractBaseEntity{
     @Enumerated(EnumType.STRING)
     private ERole name;
 
-    public Role(Long id, ERole name) {
+    public Role(ERole name) {
         this.name = name;
     }
 
