@@ -1,6 +1,6 @@
 package com.rafdev.prova.blog.api.response;
 
-import java.util.List;
+import java.util.Set;
 
 public class TokenResponse {
 
@@ -8,10 +8,10 @@ public class TokenResponse {
     private String username;
     private String email;
     private String fullName;
-    private List<String> roles;
+    private Set<String> roles;
     private String token;
 
-    public TokenResponse(Long id, String username, String email, String fullName, List<String> roles, String token) {
+    public TokenResponse(Long id, String username, String email, String fullName, Set<String> roles, String token) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -36,7 +36,7 @@ public class TokenResponse {
         return fullName;
     }
 
-    public List<String> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 

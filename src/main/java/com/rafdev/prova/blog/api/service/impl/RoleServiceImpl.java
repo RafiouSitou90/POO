@@ -1,6 +1,6 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.entity.ERole;
+import com.rafdev.prova.blog.api.enums.ERole;
 import com.rafdev.prova.blog.api.entity.Role;
 import com.rafdev.prova.blog.api.repository.RoleRepository;
 import com.rafdev.prova.blog.api.service.RoleService;

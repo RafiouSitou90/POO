@@ -1,4 +1,4 @@
-package com.rafdev.prova.blog.api.entity;
+package com.rafdev.prova.blog.api.enums;
 
 public enum ERole {
 

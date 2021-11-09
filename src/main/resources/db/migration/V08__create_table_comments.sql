@@ -1,8 +1,8 @@
 CREATE TABLE tab_comments
 (
-    id           BIGINT    NOT NULL,
+    id           BIGSERIAL NOT NULL,
     content      TEXT      NOT NULL,
-    published_at TIMESTAMP NOT NULL,
+    published_at TIMESTAMP,
     created_at   TIMESTAMP NOT NULL,
     updated_at   TIMESTAMP,
     post_id      BIGINT    NOT NULL,
@@ -11,5 +11,9 @@ CREATE TABLE tab_comments
 
 ALTER TABLE tab_comments
     ADD CONSTRAINT comment_id_pk PRIMARY KEY (id),
-    ADD CONSTRAINT comment_post_id_fk FOREIGN KEY (post_id) REFERENCES tab_posts (id),
-    ADD CONSTRAINT comment_user_id_fk FOREIGN KEY (user_id) REFERENCES tab_users (id);
+    ADD CONSTRAINT comment_post_id_fk
+        FOREIGN KEY (post_id)
+            REFERENCES tab_posts (id),
+    ADD CONSTRAINT comment_user_id_fk
+        FOREIGN KEY (user_id)
+            REFERENCES tab_users (id);

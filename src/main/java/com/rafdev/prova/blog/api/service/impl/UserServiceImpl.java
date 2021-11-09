@@ -1,7 +1,7 @@
 package com.rafdev.prova.blog.api.service.impl;
 
 import com.rafdev.prova.blog.api.dto.UserDto;
-import com.rafdev.prova.blog.api.entity.ERole;
+import com.rafdev.prova.blog.api.enums.ERole;
 import com.rafdev.prova.blog.api.entity.Role;
 import com.rafdev.prova.blog.api.entity.User;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
@@ -15,10 +15,7 @@ import com.rafdev.prova.blog.api.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -63,7 +60,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceAlreadyExistsException(resourceName, "Username", userRequest.getUsername());
         }
 
-        List<Role> roles = setUserRoles(userRequest.getRoles());
+        Set<Role> roles = getUserRoles(userRequest.getRoles());
 
         User user = new User(userRequest.getUsername(), userRequest.getEmail(),
                 getPasswordHashed(userRequest.getPassword()), userRequest.getFirstName(), userRequest.getLastName(), roles);
@@ -89,7 +86,7 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUserById(Long id, UserRequest userRequest) {
         User userFound = getUserOrThrowException(id);
 
-        List<Role> roles = setUserRoles(userRequest.getRoles());
+        Set<Role> roles = getUserRoles(userRequest.getRoles());
 
         if (!Objects.equals(userFound.getUsername(), userRequest.getUsername())) {
             if (userRepository.existsByUsernameIgnoreCase(userRequest.getUsername())) {
@@ -117,8 +114,8 @@ public class UserServiceImpl implements UserService {
         return passwordEncoder.encode(password);
     }
 
-    private List<Role> setUserRoles(List<String> strRoles) {
-        List<Role> roles = new ArrayList<>();
+    private Set<Role> getUserRoles(List<String> strRoles) {
+        Set<Role> roles = new HashSet<>();
 
         if (strRoles == null || strRoles.isEmpty()) {
             roles.add(getRole(ERole.ROLE_USER));
@@ -126,9 +123,25 @@ public class UserServiceImpl implements UserService {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "super_admin" -> roles.add(getRole(ERole.ROLE_SUPER_ADMIN));
-
                     case "admin" -> roles.add(getRole(ERole.ROLE_ADMIN));
+                    default -> roles.add(getRole(ERole.ROLE_USER));
+                }
+            });
+        }
 
+        return roles;
+    }
+
+    private Set<Role> getUserRoles(ERole[] eRoles) {
+        Set<Role> roles = new HashSet<>();
+
+        if (eRoles.length == 0) {
+            roles.add(getRole(ERole.ROLE_USER));
+        } else {
+            Arrays.stream(eRoles).toList().forEach(role -> {
+                switch (role) {
+                    case ROLE_SUPER_ADMIN -> roles.add(getRole(ERole.ROLE_SUPER_ADMIN));
+                    case ROLE_ADMIN -> roles.add(getRole(ERole.ROLE_ADMIN));
                     default -> roles.add(getRole(ERole.ROLE_USER));
                 }
             });

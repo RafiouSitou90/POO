@@ -2,43 +2,37 @@ package com.rafdev.prova.blog.api.service.impl;
 
 import com.rafdev.prova.blog.api.dto.CommentDto;
 import com.rafdev.prova.blog.api.dto.PostDto;
-import com.rafdev.prova.blog.api.entity.Category;
-import com.rafdev.prova.blog.api.entity.Comment;
-import com.rafdev.prova.blog.api.entity.Post;
-import com.rafdev.prova.blog.api.entity.User;
+import com.rafdev.prova.blog.api.entity.*;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
-import com.rafdev.prova.blog.api.repository.CategoryRepository;
-import com.rafdev.prova.blog.api.repository.CommentRepository;
-import com.rafdev.prova.blog.api.repository.PostRepository;
-import com.rafdev.prova.blog.api.repository.UserRepository;
+import com.rafdev.prova.blog.api.repository.*;
 import com.rafdev.prova.blog.api.request.PostRequest;
 import com.rafdev.prova.blog.api.service.PostService;
 
+import com.rafdev.prova.blog.api.service.TagService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
 @Service
 public class PostServiceImpl implements PostService {
 
     private final String resourceName = "Post";
-    private final AtomicLong idCounter = new AtomicLong(100);
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final TagRepository tagRepository;
+    private final TagService tagService;
 
     public PostServiceImpl(PostRepository postRepository, CategoryRepository categoryRepository,
-                           UserRepository userRepository, CommentRepository commentRepository) {
+                           UserRepository userRepository, CommentRepository commentRepository, TagRepository tagRepository, TagService tagService) {
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.tagRepository = tagRepository;
+        this.tagService = tagService;
     }
 
     @Override
@@ -52,8 +46,10 @@ public class PostServiceImpl implements PostService {
 
         Category category = getCategoryOrThrowException(postRequest.getCategoryId());
 
+        Set<Tag> tags = getPostTags(postRequest.getTags());
+
         Post post = new Post(postRequest.getTitle(), postRequest.getContent(),
-                postRequest.getImageUrl(), user, category, postRequest.getPublishedAt());
+                postRequest.getImageUrl(), postRequest.getPublishedAt(), user, category, tags);
 
         return new PostDto(postRepository.save(post));
     }
@@ -62,7 +58,7 @@ public class PostServiceImpl implements PostService {
     public PostDto updatePostById(Long id, PostRequest postRequest) {
         Post postFound = getPostOrThrowException(id);
 
-        if(!Objects.equals(postFound.getTitle().toLowerCase(), postRequest.getTitle().toLowerCase())) {
+        if (!Objects.equals(postFound.getTitle().toLowerCase(), postRequest.getTitle().toLowerCase())) {
             if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
                 throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
             }
@@ -83,7 +79,7 @@ public class PostServiceImpl implements PostService {
         List<PostDto> postsDto = new ArrayList<>();
         List<Post> posts = postRepository.findAll();
 
-        for (Post post: posts) {
+        for (Post post : posts) {
             postsDto.add(new PostDto(post));
         }
 
@@ -108,7 +104,7 @@ public class PostServiceImpl implements PostService {
         List<Comment> commentsList = commentRepository.findAllByPostId(post.getId());
         List<CommentDto> commentsListDto = new ArrayList<>();
 
-        for (Comment comment: commentsList) {
+        for (Comment comment : commentsList) {
             CommentDto commentDto = new CommentDto(comment);
 
             commentsListDto.add(commentDto);
@@ -116,6 +112,7 @@ public class PostServiceImpl implements PostService {
 
         return new PostDto(post, commentsListDto);
     }
+
     private Post getPostOrThrowException(Long id) {
         return postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
@@ -127,5 +124,19 @@ public class PostServiceImpl implements PostService {
 
     private Category getCategoryOrThrowException(Long id) {
         return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", id));
+    }
+
+    private Set<Tag> getPostTags(Set<String> strTags) {
+        Set<Tag> tags = new HashSet<>();
+
+        if (strTags != null && !strTags.isEmpty()) {
+            strTags.forEach(tag -> tags.add(getTagByName(tag)));
+        }
+
+        return tags;
+    }
+
+    private Tag getTagByName(String name) {
+        return tagService.getOrCreateByName(name);
     }
 }

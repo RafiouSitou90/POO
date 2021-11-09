@@ -5,39 +5,71 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tab_users")
 public class User extends AbstractBaseEntity implements UserDetails {
 
+    @NotBlank
+    @Size(min = 6, max = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
+
+    @NotBlank
+    @Email
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @NotBlank
+    @Column(nullable = false)
     private String password;
+
+    @Size(min = 3, max = 100)
+    @NotBlank
+    @Column
     private String firstName;
+
+    @Size(min = 3, max = 100)
+    @NotBlank
+    @Column
     private String lastName;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @Column(nullable = false)
+    private Boolean isEnabled = true;
+
+    @ManyToMany(targetEntity = Role.class, fetch = FetchType.EAGER)
     @JoinTable(
             name = "tab_user_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
-    private List<Role> roles;
-    private Boolean isEnabled = true;
+    private Set<Role> roles;
+
+    @OneToMany(targetEntity = Post.class, mappedBy = "user", orphanRemoval = true)
+    private Set<Post> posts;
+
+    @OneToMany(targetEntity = Post.class, mappedBy = "user", orphanRemoval = true)
+    private Set<Comment> comments;
 
     public User() {
     }
 
-    public User(String username, String email, String password, String firstName, String lastName, List<Role> roles) {
+    public User(String username, String email, String password, String firstName, String lastName, Set<Role> roles) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.roles = roles;
+        this.posts = new HashSet<>();
+        this.comments = new HashSet<>();
     }
 
     public String getUsername() {
@@ -80,16 +112,32 @@ public class User extends AbstractBaseEntity implements UserDetails {
         this.lastName = lastName;
     }
 
-    public List<Role> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
+    public Set<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(Set<Post> posts) {
+        this.posts = posts;
+    }
+
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
+    }
+
     public String getFullName() {
-        return String.format("%s %s", this.firstName, this.lastName);
+        return String.format("%s %s", firstName, lastName);
     }
 
     public Boolean getEnabled() {
