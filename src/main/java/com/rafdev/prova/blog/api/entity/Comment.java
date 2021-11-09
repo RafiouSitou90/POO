@@ -1,30 +1,38 @@
 package com.rafdev.prova.blog.api.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.Date;
 
-public class Comment extends BaseEntity {
+@Entity
+@Table(name = "tab_comments")
+public class Comment extends AbstractBaseEntity {
 
-    private Long id;
+    @NotBlank
+    @Size(min = 10)
+    @Column
     private String content;
+
+    @ManyToOne(targetEntity = User.class, optional = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @ManyToOne(targetEntity = Post.class, optional = false)
+    @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
+
+    @Column
     private LocalDateTime publishedAt;
 
-    public Comment(Long id, String content, User user, Post post, LocalDateTime publishedAt) {
-        this.id = id;
+    public Comment() {
+    }
+
+    public Comment(String content, User user, Post post, LocalDateTime publishedAt) {
         this.content = content;
         this.user = user;
         this.post = post;
         this.publishedAt = publishedAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getContent() {

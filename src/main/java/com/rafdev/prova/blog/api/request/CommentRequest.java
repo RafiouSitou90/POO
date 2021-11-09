@@ -7,9 +7,7 @@ import javax.validation.constraints.Size;
 public class CommentRequest {
 
     @NotBlank(message = "The content cannot be blank")
-    @Size.List ({
-            @Size(min = 10, message = "The content must be at least {min} characters")
-    })
+    @Size(min = 10, message = "The content must be at least {min} characters")
     private String content;
 
     @PositiveOrZero(message = "The userId must be greater than or equal to zero")
@@ -17,12 +15,6 @@ public class CommentRequest {
 
     @PositiveOrZero(message = "The postId must be greater than or equal to zero")
     private Long postId;
-
-    public CommentRequest(String content, Long userId, Long postId) {
-        this.content = content;
-        this.userId = userId;
-        this.postId = postId;
-    }
 
     public String getContent() {
         return content;

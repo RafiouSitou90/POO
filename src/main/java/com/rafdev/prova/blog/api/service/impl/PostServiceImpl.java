@@ -2,108 +2,76 @@ package com.rafdev.prova.blog.api.service.impl;
 
 import com.rafdev.prova.blog.api.dto.CommentDto;
 import com.rafdev.prova.blog.api.dto.PostDto;
-import com.rafdev.prova.blog.api.entity.Category;
-import com.rafdev.prova.blog.api.entity.Comment;
-import com.rafdev.prova.blog.api.entity.Post;
-import com.rafdev.prova.blog.api.entity.User;
+import com.rafdev.prova.blog.api.entity.*;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
-import com.rafdev.prova.blog.api.repository.CategoryRepository;
-import com.rafdev.prova.blog.api.repository.CommentRepository;
-import com.rafdev.prova.blog.api.repository.PostRepository;
-import com.rafdev.prova.blog.api.repository.UserRepository;
+import com.rafdev.prova.blog.api.repository.*;
 import com.rafdev.prova.blog.api.request.PostRequest;
 import com.rafdev.prova.blog.api.service.PostService;
 
+import com.rafdev.prova.blog.api.service.TagService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
 @Service
 public class PostServiceImpl implements PostService {
 
     private final String resourceName = "Post";
-    private final AtomicLong idCounter = new AtomicLong(100);
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final TagRepository tagRepository;
+    private final TagService tagService;
 
     public PostServiceImpl(PostRepository postRepository, CategoryRepository categoryRepository,
-                           UserRepository userRepository, CommentRepository commentRepository) {
+                           UserRepository userRepository, CommentRepository commentRepository, TagRepository tagRepository, TagService tagService) {
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.tagRepository = tagRepository;
+        this.tagService = tagService;
     }
 
     @Override
     public PostDto savePost(PostRequest postRequest) {
 
-        if (postRepository.existsByTitle(postRequest.getTitle())) {
+        if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
             throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
         }
 
-        User user = userRepository.findById(postRequest.getUserId());
+        User user = getUserOrThrowException(postRequest.getUserId());
 
-        if (user == null) {
-            throw new ResourceNotFoundException("User", "Id", postRequest.getUserId());
-        }
+        Category category = getCategoryOrThrowException(postRequest.getCategoryId());
 
-        Category category = null;
-        if (postRequest.getCategoryId() != null) {
-            category = categoryRepository.findById(postRequest.getCategoryId());
+        Set<Tag> tags = getPostTags(postRequest.getTags());
 
-            if (category == null) {
-                throw new ResourceNotFoundException("Category", "Id", postRequest.getCategoryId());
-            }
-        }
+        Post post = new Post(postRequest.getTitle(), postRequest.getContent(),
+                postRequest.getImageUrl(), postRequest.getPublishedAt(), user, category, tags);
 
-        Post post = new Post(idCounter.incrementAndGet(), postRequest.getTitle(), postRequest.getContent(),
-                postRequest.getImageUrl(), user, category, postRequest.getPublishedAt());
-        post.setCreatedAt(LocalDateTime.now());
-        post.setUpdatedAt(null);
-
-        Post postCreated = postRepository.save(post);
-
-        return new PostDto(postCreated);
+        return new PostDto(postRepository.save(post));
     }
 
     @Override
     public PostDto updatePostById(Long id, PostRequest postRequest) {
-        Post postFound = postRepository.findById(id);
+        Post postFound = getPostOrThrowException(id);
 
-        if (postFound == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        Post postFoundByTitle = postRepository.findByTitle(postRequest.getTitle());
-        if (postFoundByTitle != null && !Objects.equals(postFound.getTitle(), postFoundByTitle.getTitle())) {
-            throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
-        }
-
-        Category category = postFound.getCategory();
-        if (postRequest.getCategoryId() != null) {
-            category = categoryRepository.findById(postRequest.getCategoryId());
-
-            if (category == null) {
-                throw new ResourceNotFoundException("Category", "Id", postRequest.getCategoryId());
+        if (!Objects.equals(postFound.getTitle().toLowerCase(), postRequest.getTitle().toLowerCase())) {
+            if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
+                throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
             }
         }
+
+        Category category = getCategoryOrThrowException(postRequest.getCategoryId());
 
         postFound.setTitle(postRequest.getTitle());
         postFound.setContent(postRequest.getContent());
         postFound.setImageUrl(postRequest.getImageUrl());
         postFound.setCategory(category);
-        postFound.setUpdatedAt(LocalDateTime.now());
 
-        Post postUpdated = postRepository.update(postFound);
-
-        return new PostDto(postUpdated);
+        return new PostDto(postRepository.save(postFound));
     }
 
     @Override
@@ -111,7 +79,7 @@ public class PostServiceImpl implements PostService {
         List<PostDto> postsDto = new ArrayList<>();
         List<Post> posts = postRepository.findAll();
 
-        for (Post post: posts) {
+        for (Post post : posts) {
             postsDto.add(new PostDto(post));
         }
 
@@ -120,36 +88,55 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto getPostById(Long id) {
-        Post post = postRepository.findById(id);
-
-        if (post == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        Post post = getPostOrThrowException(id);
 
         return setPostDtoWithComment(post);
     }
 
     @Override
     public void deletePostById(Long id) {
-        Post post = postRepository.findById(id);
+        Post post = getPostOrThrowException(id);
 
-        if (post == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        postRepository.delete(post.getId());
+        postRepository.delete(post);
     }
 
     private PostDto setPostDtoWithComment(Post post) {
         List<Comment> commentsList = commentRepository.findAllByPostId(post.getId());
         List<CommentDto> commentsListDto = new ArrayList<>();
 
-        for (Comment comment: commentsList) {
+        for (Comment comment : commentsList) {
             CommentDto commentDto = new CommentDto(comment);
 
             commentsListDto.add(commentDto);
         }
 
         return new PostDto(post, commentsListDto);
+    }
+
+    private Post getPostOrThrowException(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
+
+    private User getUserOrThrowException(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
+    }
+
+    private Category getCategoryOrThrowException(Long id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", id));
+    }
+
+    private Set<Tag> getPostTags(Set<String> strTags) {
+        Set<Tag> tags = new HashSet<>();
+
+        if (strTags != null && !strTags.isEmpty()) {
+            strTags.forEach(tag -> tags.add(getTagByName(tag)));
+        }
+
+        return tags;
+    }
+
+    private Tag getTagByName(String name) {
+        return tagService.getOrCreateByName(name);
     }
 }

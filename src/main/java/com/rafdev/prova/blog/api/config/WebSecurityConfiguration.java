@@ -1,6 +1,6 @@
 package com.rafdev.prova.blog.api.config;
 
-import com.rafdev.prova.blog.api.utility.TokenFilter;
+import com.rafdev.prova.blog.api.util.jwt.JwtTokenFilter;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +20,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
-    private final TokenFilter tokenFilter;
+    private final JwtTokenFilter jwtTokenFilter;
 
-    public WebSecurityConfiguration(UserDetailsService userDetailsService, TokenFilter tokenFilter) {
+    private static final String[] PUBLIC_URLS = {
+            "/api/v2/auth/**"
+    };
+
+    public WebSecurityConfiguration(UserDetailsService userDetailsService, JwtTokenFilter jwtTokenFilter) {
         this.userDetailsService = userDetailsService;
-        this.tokenFilter = tokenFilter;
+        this.jwtTokenFilter = jwtTokenFilter;
     }
 
     @Bean
@@ -52,11 +56,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/v1/auth/**").permitAll()
-                .antMatchers("/api/v1").permitAll()
+                .antMatchers(PUBLIC_URLS).permitAll()
                 .anyRequest()
                 .authenticated();
 
-        http.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

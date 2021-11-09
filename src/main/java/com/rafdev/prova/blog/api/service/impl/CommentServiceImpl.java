@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.service.impl;
 
 import com.rafdev.prova.blog.api.dto.CommentDto;
+import com.rafdev.prova.blog.api.entity.Category;
 import com.rafdev.prova.blog.api.entity.Comment;
 import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.entity.User;
@@ -37,20 +38,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto saveComment(CommentRequest commentRequest) {
 
-        User user = userRepository.findById(commentRequest.getUserId());
-        if (user == null) {
-            throw new ResourceNotFoundException("User", "Id", commentRequest.getUserId());
-        }
+        User user = getUserOrThrowException(commentRequest.getUserId());
 
-        Post post = postRepository.findById(commentRequest.getPostId());
-        if (post == null) {
-            throw new ResourceNotFoundException("Post", "Id", commentRequest.getUserId());
-        }
+        Post post = getPostOrThrowException(commentRequest.getPostId());
 
-        Comment comment = new Comment(idCounter.incrementAndGet(), commentRequest.getContent(), user, post,
+        Comment comment = new Comment(commentRequest.getContent(), user, post,
                 LocalDateTime.now());
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setUpdatedAt(null);
 
         Comment commentCreated = commentRepository.save(comment);
 
@@ -59,16 +52,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto updateCommentById(Long id, CommentRequest commentRequest) {
-        Comment commentFound = commentRepository.findById(id);
-
-        if (commentFound == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        Comment commentFound = getCommentOrThrowException(id);
 
         commentFound.setContent(commentRequest.getContent());
-        commentFound.setUpdatedAt(LocalDateTime.now());
 
-        Comment commentUpdated = commentRepository.update(commentFound);
+        Comment commentUpdated = commentRepository.save(commentFound);
 
         return new CommentDto(commentUpdated);
     }
@@ -78,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
         List<Comment> comments = commentRepository.findAll();
         List<CommentDto> commentsDto = new ArrayList<>();
 
-        for (Comment comment: comments) {
+        for (Comment comment : comments) {
             commentsDto.add(new CommentDto(comment));
         }
 
@@ -87,23 +75,28 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto getCommentById(Long id) {
-        Comment comment = commentRepository.findById(id);
-
-        if (comment == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        Comment comment = getCommentOrThrowException(id);
 
         return new CommentDto(comment);
     }
 
     @Override
     public void deleteCommentById(Long id) {
-        Comment comment = commentRepository.findById(id);
+        Comment comment = getCommentOrThrowException(id);
 
-        if (comment == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        commentRepository.delete(comment);
+    }
 
-        commentRepository.delete(comment.getId());
+    private Comment getCommentOrThrowException(long id) {
+        return commentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
+
+    private Post getPostOrThrowException(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
+
+    private User getUserOrThrowException(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
     }
 }

@@ -1,4 +1,4 @@
-package com.rafdev.prova.blog.api.utility;
+package com.rafdev.prova.blog.api.util;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

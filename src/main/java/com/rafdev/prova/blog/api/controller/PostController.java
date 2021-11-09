@@ -14,9 +14,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/posts")
-//@PreAuthorize("hasRole('USER')")
-//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+@RequestMapping("api/v2/posts")
 public class PostController {
 
     private final PostService postService;
@@ -25,7 +23,7 @@ public class PostController {
         this.postService = postService;
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<PostDto> savePost(@RequestBody @Valid PostRequest postRequest)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
         return new ResponseEntity<>(postService.savePost(postRequest), HttpStatus.CREATED);

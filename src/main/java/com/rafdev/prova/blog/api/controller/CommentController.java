@@ -13,9 +13,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/comments")
-//@PreAuthorize("hasRole('USER')")
-//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+@RequestMapping("api/v2/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -24,7 +22,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<CommentDto> saveComment(@RequestBody @Valid CommentRequest commentRequest)
             throws ResourceNotFoundException {
         return new ResponseEntity<>(commentService.saveComment(commentRequest), HttpStatus.CREATED);

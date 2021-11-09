@@ -8,16 +8,13 @@ import com.rafdev.prova.blog.api.service.CategoryService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/categories")
-//@PreAuthorize("hasRole('USER')")
-//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+@RequestMapping("api/v2/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -26,7 +23,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<CategoryDto> saveCategory(@RequestBody @Valid CategoryRequest categoryRequest)
             throws ResourceAlreadyExistsException {
         return new ResponseEntity<>(categoryService.saveCategory(categoryRequest), HttpStatus.CREATED);
