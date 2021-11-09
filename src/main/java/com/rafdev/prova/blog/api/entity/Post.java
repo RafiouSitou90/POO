@@ -1,22 +1,32 @@
 package com.rafdev.prova.blog.api.entity;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Post extends BaseEntity {
+@Entity
+@Table(name = "tab_posts")
+public class Post extends AbstractBaseEntity {
 
-    private Long id;
     private String title;
     private String content;
     private String imageUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
+
     private LocalDateTime publishedAt;
+
+    @OneToMany
     private List<Comment> comments;
 
-    public Post(Long id, String title, String content, String imageUrl, User user, Category category, LocalDateTime publishedAt) {
-        this.id = id;
+    public Post(String title, String content, String imageUrl, User user, Category category, LocalDateTime publishedAt) {
         this.title = title;
         this.content = content;
         this.imageUrl = imageUrl;
@@ -26,12 +36,8 @@ public class Post extends BaseEntity {
         this.comments = new ArrayList<>();
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Post() {
 
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTitle() {

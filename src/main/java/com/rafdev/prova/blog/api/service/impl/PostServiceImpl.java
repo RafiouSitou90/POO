@@ -44,66 +44,38 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto savePost(PostRequest postRequest) {
 
-        if (postRepository.existsByTitle(postRequest.getTitle())) {
+        if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
             throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
         }
 
-        User user = userRepository.findById(postRequest.getUserId());
+        User user = getUserOrThrowException(postRequest.getUserId());
 
-        if (user == null) {
-            throw new ResourceNotFoundException("User", "Id", postRequest.getUserId());
-        }
+        Category category = getCategoryOrThrowException(postRequest.getCategoryId());
 
-        Category category = null;
-        if (postRequest.getCategoryId() != null) {
-            category = categoryRepository.findById(postRequest.getCategoryId());
-
-            if (category == null) {
-                throw new ResourceNotFoundException("Category", "Id", postRequest.getCategoryId());
-            }
-        }
-
-        Post post = new Post(idCounter.incrementAndGet(), postRequest.getTitle(), postRequest.getContent(),
+        Post post = new Post(postRequest.getTitle(), postRequest.getContent(),
                 postRequest.getImageUrl(), user, category, postRequest.getPublishedAt());
-        post.setCreatedAt(LocalDateTime.now());
-        post.setUpdatedAt(null);
 
-        Post postCreated = postRepository.save(post);
-
-        return new PostDto(postCreated);
+        return new PostDto(postRepository.save(post));
     }
 
     @Override
     public PostDto updatePostById(Long id, PostRequest postRequest) {
-        Post postFound = postRepository.findById(id);
+        Post postFound = getPostOrThrowException(id);
 
-        if (postFound == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        Post postFoundByTitle = postRepository.findByTitle(postRequest.getTitle());
-        if (postFoundByTitle != null && !Objects.equals(postFound.getTitle(), postFoundByTitle.getTitle())) {
-            throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
-        }
-
-        Category category = postFound.getCategory();
-        if (postRequest.getCategoryId() != null) {
-            category = categoryRepository.findById(postRequest.getCategoryId());
-
-            if (category == null) {
-                throw new ResourceNotFoundException("Category", "Id", postRequest.getCategoryId());
+        if(!Objects.equals(postFound.getTitle().toLowerCase(), postRequest.getTitle().toLowerCase())) {
+            if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
+                throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
             }
         }
+
+        Category category = getCategoryOrThrowException(postRequest.getCategoryId());
 
         postFound.setTitle(postRequest.getTitle());
         postFound.setContent(postRequest.getContent());
         postFound.setImageUrl(postRequest.getImageUrl());
         postFound.setCategory(category);
-        postFound.setUpdatedAt(LocalDateTime.now());
 
-        Post postUpdated = postRepository.update(postFound);
-
-        return new PostDto(postUpdated);
+        return new PostDto(postRepository.save(postFound));
     }
 
     @Override
@@ -120,24 +92,16 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto getPostById(Long id) {
-        Post post = postRepository.findById(id);
-
-        if (post == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        Post post = getPostOrThrowException(id);
 
         return setPostDtoWithComment(post);
     }
 
     @Override
     public void deletePostById(Long id) {
-        Post post = postRepository.findById(id);
+        Post post = getPostOrThrowException(id);
 
-        if (post == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        postRepository.delete(post.getId());
+        postRepository.delete(post);
     }
 
     private PostDto setPostDtoWithComment(Post post) {
@@ -151,5 +115,17 @@ public class PostServiceImpl implements PostService {
         }
 
         return new PostDto(post, commentsListDto);
+    }
+    private Post getPostOrThrowException(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
+
+    private User getUserOrThrowException(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
+    }
+
+    private Category getCategoryOrThrowException(Long id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", id));
     }
 }

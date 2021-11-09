@@ -9,15 +9,16 @@ import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.repository.RoleRepository;
 import com.rafdev.prova.blog.api.repository.UserRepository;
 import com.rafdev.prova.blog.api.request.UserRequest;
+import com.rafdev.prova.blog.api.service.RoleService;
 import com.rafdev.prova.blog.api.service.UserService;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -28,11 +29,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     @Override
@@ -40,7 +43,7 @@ public class UserServiceImpl implements UserService {
         List<UserDto> usersDto = new ArrayList<>();
         List<User> users = userRepository.findAll();
 
-        for (User user: users) {
+        for (User user : users) {
             UserDto userDto = new UserDto(user);
 
             usersDto.add(userDto);
@@ -52,22 +55,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto saveUser(UserRequest userRequest) throws ResourceAlreadyExistsException {
 
-        if (userRepository.existsByEmail(userRequest.getEmail())) {
+        if (userRepository.existsByEmailIgnoreCase(userRequest.getEmail())) {
             throw new ResourceAlreadyExistsException(resourceName, "Email", userRequest.getEmail());
         }
 
-        if (userRepository.existsByUsername(userRequest.getUsername())) {
+        if (userRepository.existsByUsernameIgnoreCase(userRequest.getUsername())) {
             throw new ResourceAlreadyExistsException(resourceName, "Username", userRequest.getUsername());
         }
 
         List<Role> roles = setUserRoles(userRequest.getRoles());
 
-        String passwordHashed = passwordEncoder.encode(userRequest.getPassword());
-
-        User user = new User(idCounter.incrementAndGet(), userRequest.getUsername(), userRequest.getEmail(),
-                passwordHashed, userRequest.getFirstName(), userRequest.getLastName(), roles);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(null);
+        User user = new User(userRequest.getUsername(), userRequest.getEmail(),
+                getPasswordHashed(userRequest.getPassword()), userRequest.getFirstName(), userRequest.getLastName(), roles);
 
         User userCreated = userRepository.save(user);
 
@@ -76,87 +75,73 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long id) {
-        User user = userRepository.findById(id);
 
-        if (user == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        return new UserDto(user);
+        return new UserDto(getUserOrThrowException(id));
     }
 
     @Override
     public void deleteUserById(Long id) {
-        User user = userRepository.findById(id);
 
-        if (user == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        userRepository.delete(id);
+        userRepository.delete(getUserOrThrowException(id));
     }
 
     @Override
     public UserDto updateUserById(Long id, UserRequest userRequest) {
-        User userFound = userRepository.findById(id);
-
-        if (userFound == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        User userFound = getUserOrThrowException(id);
 
         List<Role> roles = setUserRoles(userRequest.getRoles());
 
-        User userFoundWithUsername = userRepository.findByUsername(userRequest.getUsername());
-        if (userFoundWithUsername != null && !Objects.equals(userFound.getUsername(), userFoundWithUsername.getUsername())) {
-            throw new ResourceNotFoundException(resourceName, "Username", userRequest.getUsername());
+        if (!Objects.equals(userFound.getUsername(), userRequest.getUsername())) {
+            if (userRepository.existsByUsernameIgnoreCase(userRequest.getUsername())) {
+                throw new ResourceAlreadyExistsException(resourceName, "Username", userRequest.getUsername());
+            }
         }
 
-        User userFoundWithEmail = userRepository.findByEmail(userRequest.getEmail());
-        if (userFoundWithEmail != null && !Objects.equals(userFound.getEmail(), userFoundWithEmail.getEmail())) {
-            throw new ResourceNotFoundException(resourceName, "Email", userRequest.getEmail());
+        if (!Objects.equals(userFound.getEmail(), userRequest.getEmail())) {
+            if (userRepository.existsByUsernameIgnoreCase(userRequest.getEmail())) {
+                throw new ResourceAlreadyExistsException(resourceName, "Email", userRequest.getEmail());
+            }
         }
-
-        String passwordHashed = passwordEncoder.encode(userRequest.getPassword());
 
         userFound.setUsername(userRequest.getUsername());
         userFound.setEmail(userRequest.getEmail());
-        userFound.setPassword(passwordHashed);
+        userFound.setPassword(getPasswordHashed(userRequest.getPassword()));
         userFound.setFirstName(userRequest.getFirstName());
         userFound.setLastName(userRequest.getLastName());
         userFound.setRoles(roles);
-        userFound.setUpdatedAt(LocalDateTime.now());
-        userFound.setToken(null);
 
-        User userUpdated = userRepository.update(userFound);
+        return new UserDto(userRepository.save(userFound));
+    }
 
-        return new UserDto(userUpdated);
+    private String getPasswordHashed(String password) {
+        return passwordEncoder.encode(password);
     }
 
     private List<Role> setUserRoles(List<String> strRoles) {
         List<Role> roles = new ArrayList<>();
 
         if (strRoles == null || strRoles.isEmpty()) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER);
-            roles.add(userRole);
+            roles.add(getRole(ERole.ROLE_USER));
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
-                    case "super_admin" -> {
-                        Role superAdminRole = roleRepository.findByName(ERole.ROLE_SUPER_ADMIN);
-                        roles.add(superAdminRole);
-                    }
-                    case "admin" -> {
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN);
-                        roles.add(adminRole);
-                    }
-                    default -> {
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER);
-                        roles.add(userRole);
-                    }
+                    case "super_admin" -> roles.add(getRole(ERole.ROLE_SUPER_ADMIN));
+
+                    case "admin" -> roles.add(getRole(ERole.ROLE_ADMIN));
+
+                    default -> roles.add(getRole(ERole.ROLE_USER));
                 }
             });
         }
 
         return roles;
+    }
+
+    private User getUserOrThrowException(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
+
+    private Role getRole(ERole name) {
+        return roleService.getOrCreateByName(name);
     }
 }

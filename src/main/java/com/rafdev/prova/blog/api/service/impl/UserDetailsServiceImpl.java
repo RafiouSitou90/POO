@@ -21,11 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws LoginBadCredentialsException {
-        User user = userRepository.findByUsername(username);
-
-        if (user == null) {
-            throw new LoginBadCredentialsException();
-        }
+        User user = userRepository.findByUsernameIgnoreCase(username).orElseThrow(LoginBadCredentialsException::new);
 
         return UserDetailsDto.build(user);
     }

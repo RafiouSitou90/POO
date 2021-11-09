@@ -10,16 +10,14 @@ import com.rafdev.prova.blog.api.service.CategoryService;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
     private final String resourceName = "Category";
-    private final AtomicLong idCounter = new AtomicLong(10);
     private final CategoryRepository categoryRepository;
+    private CategoryDto categoryDto;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
@@ -27,29 +25,28 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto saveCategory(CategoryRequest categoryRequest) {
-        if (categoryRepository.existsByName(categoryRequest.getName())) {
+        if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
             throw new ResourceAlreadyExistsException(resourceName, "Name", categoryRequest.getName());
         }
 
-        Category category = new Category(idCounter.incrementAndGet(), categoryRequest.getName());
-        Category categoryCreated = categoryRepository.save(category);
+        Category category = new Category(categoryRequest.getName());
 
-        return new CategoryDto(categoryCreated);
+        return new CategoryDto(categoryRepository.save(category));
     }
 
     @Override
     public CategoryDto updateCategoryById(Long id, CategoryRequest categoryRequest) {
-        Category categoryFound = categoryRepository.findById(id);
+        Category categoryFound = getCategoryOrThrowException(id);
 
-        if (categoryFound == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
+        if(!Objects.equals(categoryFound.getName().toLowerCase(), categoryRequest.getName().toLowerCase())) {
+            if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
+                throw new ResourceAlreadyExistsException(resourceName, "Name", categoryRequest.getName());
+            }
         }
 
         categoryFound.setName(categoryRequest.getName());
 
-        Category categoryUpdated = categoryRepository.update(categoryFound);
-
-        return new CategoryDto(categoryUpdated);
+        return new CategoryDto(categoryRepository.save(categoryFound));
     }
 
     @Override
@@ -57,34 +54,26 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryDto> categoriesDto = new ArrayList<>();
         List<Category> categories = categoryRepository.findAll();
 
-        for (Category category: categories) {
-            CategoryDto categoryDto = new CategoryDto(category);
-
-            categoriesDto.add(categoryDto);
-        }
+        categories.forEach(category -> categoriesDto.add(new CategoryDto(category)));
 
         return categoriesDto;
     }
 
     @Override
     public CategoryDto getCategoryById(Long id) {
-        Category category = categoryRepository.findById(id);
 
-        if (category == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        return new CategoryDto(category);
+        return new CategoryDto(getCategoryOrThrowException(id));
     }
 
     @Override
     public void deleteCategoryById(Long id) {
-        Category category = categoryRepository.findById(id);
 
-        if (category == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        categoryRepository.delete(getCategoryOrThrowException(id));
+    }
 
-        categoryRepository.delete(category.getId());
+    private Category getCategoryOrThrowException(long id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
     }
 }
+
+
