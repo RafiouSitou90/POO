@@ -4,5 +4,6 @@ import com.rafdev.prova.blog.api.enums.ERole;
 import com.rafdev.prova.blog.api.entity.Role;
 
 public interface RoleService {
+
     Role getOrCreateByName(ERole name);
 }

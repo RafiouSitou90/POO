@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
-import com.rafdev.prova.blog.api.dto.CommentDto;
+import com.rafdev.prova.blog.api.dto.comment.CommentDetailsDto;
+import com.rafdev.prova.blog.api.dto.comment.CommentDto;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.CommentRequest;
 import com.rafdev.prova.blog.api.service.CommentService;
@@ -25,6 +26,7 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<CommentDto> saveComment(@RequestBody @Valid CommentRequest commentRequest)
             throws ResourceNotFoundException {
+
         return new ResponseEntity<>(commentService.saveComment(commentRequest), HttpStatus.CREATED);
     }
 
@@ -41,7 +43,7 @@ public class CommentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CommentDto> getCommentById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public ResponseEntity<CommentDetailsDto> getCommentById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return new ResponseEntity<>(commentService.getCommentById(id), HttpStatus.OK);
     }
 

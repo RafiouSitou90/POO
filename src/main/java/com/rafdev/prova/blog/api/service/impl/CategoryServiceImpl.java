@@ -1,7 +1,10 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.dto.CategoryDto;
+import com.rafdev.prova.blog.api.dto.category.CategoryDetailsDto;
+import com.rafdev.prova.blog.api.dto.category.CategoryDto;
+import com.rafdev.prova.blog.api.dto.post.PostDto;
 import com.rafdev.prova.blog.api.entity.Category;
+import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.repository.CategoryRepository;
@@ -17,7 +20,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final String resourceName = "Category";
     private final CategoryRepository categoryRepository;
-    private CategoryDto categoryDto;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
@@ -25,6 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto saveCategory(CategoryRequest categoryRequest) {
+
         if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
             throw new ResourceAlreadyExistsException(resourceName, "Name", categoryRequest.getName());
         }
@@ -36,6 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto updateCategoryById(Long id, CategoryRequest categoryRequest) {
+
         Category categoryFound = getCategoryOrThrowException(id);
 
         if(!Objects.equals(categoryFound.getName().toLowerCase(), categoryRequest.getName().toLowerCase())) {
@@ -51,6 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> getCategories() {
+
         List<CategoryDto> categoriesDto = new ArrayList<>();
         List<Category> categories = categoryRepository.findAll();
 
@@ -60,19 +65,28 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getCategoryById(Long id) {
-
-        return new CategoryDto(getCategoryOrThrowException(id));
+    public CategoryDetailsDto getCategoryById(Long id) {
+        return getCategoryDtoWithPosts(getCategoryOrThrowException(id));
     }
 
     @Override
     public void deleteCategoryById(Long id) {
-
         categoryRepository.delete(getCategoryOrThrowException(id));
     }
 
     private Category getCategoryOrThrowException(long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
+
+    private CategoryDetailsDto getCategoryDtoWithPosts(Category category) {
+
+        Set<Post> posts = category.getPosts();
+        Set<PostDto> postsDto = new HashSet<>();
+
+        posts.forEach(post -> postsDto.add(new PostDto(post)));
+
+        return new CategoryDetailsDto(category, postsDto);
     }
 }
 

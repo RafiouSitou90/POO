@@ -19,6 +19,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role getOrCreateByName(ERole name) {
+
         Optional<Role> role = roleRepository.findByName(name);
 
         if (role.isEmpty()) {

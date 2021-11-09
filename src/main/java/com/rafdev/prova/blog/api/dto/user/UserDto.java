@@ -1,32 +1,27 @@
-package com.rafdev.prova.blog.api.dto;
+package com.rafdev.prova.blog.api.dto.user;
 
-import com.rafdev.prova.blog.api.entity.Role;
+import com.rafdev.prova.blog.api.dto.AbstractBaseDto;
 import com.rafdev.prova.blog.api.entity.User;
+import com.rafdev.prova.blog.api.util.UtilityFunctions;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
-public class UserDto {
+public class UserDto extends AbstractBaseDto {
 
-    private Long id;
     private String username;
     private String email;
-    private String firstName;
-    private String lastName;
     private String fullName;
-    private List<String> roles;
+    private Set<String> roles;
 
     public UserDto(User user) {
-        List<String> strRoles = new ArrayList<>();
-        user.getRoles().forEach(role -> strRoles.add(role.getName().toString()));
 
         this.id = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail();
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
         this.fullName = user.getFullName();
-        this.roles = strRoles;
+        this.roles = UtilityFunctions.rolesToListOfString(user.getRoles());
+        this.createdAt = user.getCreatedAt();
+        this.updatedAt = user.getUpdatedAt();
     }
 
     public Long getId() {
@@ -53,22 +48,6 @@ public class UserDto {
         this.email = email;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getFullName() {
         return fullName;
     }
@@ -77,11 +56,11 @@ public class UserDto {
         this.fullName = fullName;
     }
 
-    public List<String> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(Set<String> roles) {
         this.roles = roles;
     }
 }

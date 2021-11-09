@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
-import com.rafdev.prova.blog.api.dto.CategoryDto;
+import com.rafdev.prova.blog.api.dto.category.CategoryDetailsDto;
+import com.rafdev.prova.blog.api.dto.category.CategoryDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.CategoryRequest;
@@ -31,18 +32,17 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDto> updateCategoryById(@PathVariable("id") Long id,
-                                                          @RequestBody @Valid CategoryRequest categoryRequest)
-            throws ResourceNotFoundException {
+                                                          @RequestBody @Valid CategoryRequest categoryRequest) throws ResourceNotFoundException {
         return new ResponseEntity<>(categoryService.updateCategoryById(id, categoryRequest), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<CategoryDto>> getCategories() {
         return new ResponseEntity<>(categoryService.getCategories(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public ResponseEntity<CategoryDetailsDto> getCategoryById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return new ResponseEntity<>(categoryService.getCategoryById(id), HttpStatus.OK);
     }
 

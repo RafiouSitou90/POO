@@ -1,11 +1,11 @@
 package com.rafdev.prova.blog.api.controller.auth;
 
-import com.rafdev.prova.blog.api.dto.UserDto;
+import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.exception.LoginBadCredentialsException;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.request.SignInRequest;
 import com.rafdev.prova.blog.api.request.UserRequest;
-import com.rafdev.prova.blog.api.response.TokenResponse;
+import com.rafdev.prova.blog.api.response.JwtResponse;
 import com.rafdev.prova.blog.api.service.AuthService;
 
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class JwtAuthController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<TokenResponse> signIn(@RequestBody @Valid SignInRequest signInRequest)
+    public ResponseEntity<JwtResponse> signIn(@RequestBody @Valid SignInRequest signInRequest)
             throws LoginBadCredentialsException {
 
         return new ResponseEntity<>(authService.signIn(signInRequest), HttpStatus.OK);

@@ -1,7 +1,7 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.dto.CommentDto;
-import com.rafdev.prova.blog.api.entity.Category;
+import com.rafdev.prova.blog.api.dto.comment.CommentDetailsDto;
+import com.rafdev.prova.blog.api.dto.comment.CommentDto;
 import com.rafdev.prova.blog.api.entity.Comment;
 import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.entity.User;
@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CommentServiceImpl implements CommentService {
 
     private final String resourceName = "Comment";
-    private final AtomicLong idCounter = new AtomicLong(100);
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
@@ -39,64 +38,56 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto saveComment(CommentRequest commentRequest) {
 
         User user = getUserOrThrowException(commentRequest.getUserId());
-
         Post post = getPostOrThrowException(commentRequest.getPostId());
 
         Comment comment = new Comment(commentRequest.getContent(), user, post,
                 LocalDateTime.now());
 
-        Comment commentCreated = commentRepository.save(comment);
-
-        return new CommentDto(commentCreated);
+        return new CommentDto(commentRepository.save(comment));
     }
 
     @Override
     public CommentDto updateCommentById(Long id, CommentRequest commentRequest) {
-        Comment commentFound = getCommentOrThrowException(id);
 
+        Comment commentFound = getCommentOrThrowException(id);
         commentFound.setContent(commentRequest.getContent());
 
-        Comment commentUpdated = commentRepository.save(commentFound);
-
-        return new CommentDto(commentUpdated);
+        return new CommentDto(commentRepository.save(commentFound));
     }
 
     @Override
     public List<CommentDto> getComments() {
+
         List<Comment> comments = commentRepository.findAll();
         List<CommentDto> commentsDto = new ArrayList<>();
 
-        for (Comment comment : comments) {
-            commentsDto.add(new CommentDto(comment));
-        }
+        comments.forEach(comment -> commentsDto.add(new CommentDto(comment)));
 
         return commentsDto;
     }
 
     @Override
-    public CommentDto getCommentById(Long id) {
-        Comment comment = getCommentOrThrowException(id);
-
-        return new CommentDto(comment);
+    public CommentDetailsDto getCommentById(Long id) {
+        return new CommentDetailsDto(getCommentOrThrowException(id));
     }
 
     @Override
     public void deleteCommentById(Long id) {
-        Comment comment = getCommentOrThrowException(id);
-
-        commentRepository.delete(comment);
+        commentRepository.delete(getCommentOrThrowException(id));
     }
 
     private Comment getCommentOrThrowException(long id) {
-        return commentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+        return commentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
     }
 
     private Post getPostOrThrowException(Long id) {
         return postRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "Id", id));
     }
 
     private User getUserOrThrowException(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
     }
 }

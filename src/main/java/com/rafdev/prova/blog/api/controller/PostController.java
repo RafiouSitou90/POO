@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
-import com.rafdev.prova.blog.api.dto.PostDto;
+import com.rafdev.prova.blog.api.dto.post.PostDetailsDto;
+import com.rafdev.prova.blog.api.dto.post.PostDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.PostRequest;
@@ -36,13 +37,13 @@ public class PostController {
         return new ResponseEntity<>(postService.updatePostById(id, postRequest), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<PostDto>> getPosts() {
         return new ResponseEntity<>(postService.getPosts(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostDto> getPostById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public ResponseEntity<PostDetailsDto> getPostById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return new ResponseEntity<>(postService.getPostById(id), HttpStatus.OK);
     }
 

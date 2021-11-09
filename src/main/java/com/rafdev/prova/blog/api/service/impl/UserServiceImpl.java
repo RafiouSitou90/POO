@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.dto.UserDto;
+import com.rafdev.prova.blog.api.dto.user.UserDetailsDto;
+import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.enums.ERole;
 import com.rafdev.prova.blog.api.entity.Role;
 import com.rafdev.prova.blog.api.entity.User;
@@ -65,25 +66,22 @@ public class UserServiceImpl implements UserService {
         User user = new User(userRequest.getUsername(), userRequest.getEmail(),
                 getPasswordHashed(userRequest.getPassword()), userRequest.getFirstName(), userRequest.getLastName(), roles);
 
-        User userCreated = userRepository.save(user);
-
-        return new UserDto(userCreated);
+        return new UserDto(userRepository.save(user));
     }
 
     @Override
-    public UserDto getUserById(Long id) {
-
-        return new UserDto(getUserOrThrowException(id));
+    public UserDetailsDto getUserById(Long id) {
+        return new UserDetailsDto(getUserOrThrowException(id));
     }
 
     @Override
     public void deleteUserById(Long id) {
-
         userRepository.delete(getUserOrThrowException(id));
     }
 
     @Override
     public UserDto updateUserById(Long id, UserRequest userRequest) {
+
         User userFound = getUserOrThrowException(id);
 
         Set<Role> roles = getUserRoles(userRequest.getRoles());

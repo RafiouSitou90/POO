@@ -18,6 +18,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Tag getOrCreateByName(String name) {
+
         Optional<Tag> tag = tagRepository.findByNameIgnoreCase(name);
 
         if (tag.isEmpty()) {

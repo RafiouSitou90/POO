@@ -1,12 +1,12 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.dto.UserDto;
+import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.entity.Role;
 import com.rafdev.prova.blog.api.entity.User;
 import com.rafdev.prova.blog.api.exception.LoginBadCredentialsException;
 import com.rafdev.prova.blog.api.request.SignInRequest;
 import com.rafdev.prova.blog.api.request.UserRequest;
-import com.rafdev.prova.blog.api.response.TokenResponse;
+import com.rafdev.prova.blog.api.response.JwtResponse;
 import com.rafdev.prova.blog.api.service.AuthService;
 import com.rafdev.prova.blog.api.service.UserService;
 
@@ -38,7 +38,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenResponse signIn(SignInRequest signInRequest) throws LoginBadCredentialsException {
+    public JwtResponse signIn(SignInRequest signInRequest) throws LoginBadCredentialsException {
+
         try {
             Authentication authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUsername(),
@@ -52,20 +53,14 @@ public class AuthServiceImpl implements AuthService {
         final User user = (User) userDetailsService.loadUserByUsername(signInRequest.getUsername());
         final String token = jwtUtil.generateToken(user);
 
-        return new TokenResponse(user.getId(), user.getUsername(), user.getEmail(),
-                user.getFullName(), changeRolesToString(user.getRoles()), token);
+        return new JwtResponse(new UserDto(user), token);
     }
 
     @Override
     public UserDto signUp(UserRequest signUpRequest) {
+
         signUpRequest.setRoles(null);
+
         return userService.saveUser(signUpRequest);
-    }
-
-    private Set<String> changeRolesToString(Set<Role> roles) {
-        Set<String> strRoles = new HashSet<>();
-        roles.forEach(role -> strRoles.add(role.getName().toString()));
-
-        return strRoles;
     }
 }

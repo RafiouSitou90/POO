@@ -1,7 +1,8 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.dto.CommentDto;
-import com.rafdev.prova.blog.api.dto.PostDto;
+import com.rafdev.prova.blog.api.dto.comment.CommentDto;
+import com.rafdev.prova.blog.api.dto.post.PostDetailsDto;
+import com.rafdev.prova.blog.api.dto.post.PostDto;
 import com.rafdev.prova.blog.api.entity.*;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
@@ -43,9 +44,7 @@ public class PostServiceImpl implements PostService {
         }
 
         User user = getUserOrThrowException(postRequest.getUserId());
-
         Category category = getCategoryOrThrowException(postRequest.getCategoryId());
-
         Set<Tag> tags = getPostTags(postRequest.getTags());
 
         Post post = new Post(postRequest.getTitle(), postRequest.getContent(),
@@ -56,6 +55,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto updatePostById(Long id, PostRequest postRequest) {
+
         Post postFound = getPostOrThrowException(id);
 
         if (!Objects.equals(postFound.getTitle().toLowerCase(), postRequest.getTitle().toLowerCase())) {
@@ -65,7 +65,6 @@ public class PostServiceImpl implements PostService {
         }
 
         Category category = getCategoryOrThrowException(postRequest.getCategoryId());
-
         postFound.setTitle(postRequest.getTitle());
         postFound.setContent(postRequest.getContent());
         postFound.setImageUrl(postRequest.getImageUrl());
@@ -76,41 +75,33 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> getPosts() {
+
         List<PostDto> postsDto = new ArrayList<>();
         List<Post> posts = postRepository.findAll();
 
-        for (Post post : posts) {
-            postsDto.add(new PostDto(post));
-        }
+        posts.forEach(post -> postsDto.add(new PostDto(post)));
 
         return postsDto;
     }
 
     @Override
-    public PostDto getPostById(Long id) {
-        Post post = getPostOrThrowException(id);
-
-        return setPostDtoWithComment(post);
+    public PostDetailsDto getPostById(Long id) {
+        return getPostDtoWithComment(getPostOrThrowException(id));
     }
 
     @Override
     public void deletePostById(Long id) {
-        Post post = getPostOrThrowException(id);
-
-        postRepository.delete(post);
+        postRepository.delete(getPostOrThrowException(id));
     }
 
-    private PostDto setPostDtoWithComment(Post post) {
-        List<Comment> commentsList = commentRepository.findAllByPostId(post.getId());
-        List<CommentDto> commentsListDto = new ArrayList<>();
+    private PostDetailsDto getPostDtoWithComment(Post post) {
 
-        for (Comment comment : commentsList) {
-            CommentDto commentDto = new CommentDto(comment);
+        List<Comment> comments = commentRepository.findAllByPostId(post.getId());
+        Set<CommentDto> commentsDto = new HashSet<>();
 
-            commentsListDto.add(commentDto);
-        }
+        comments.forEach(comment -> commentsDto.add(new CommentDto(comment)));
 
-        return new PostDto(post, commentsListDto);
+        return new PostDetailsDto(post, commentsDto);
     }
 
     private Post getPostOrThrowException(Long id) {
@@ -119,14 +110,17 @@ public class PostServiceImpl implements PostService {
     }
 
     private User getUserOrThrowException(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
     }
 
     private Category getCategoryOrThrowException(Long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", id));
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "Id", id));
     }
 
     private Set<Tag> getPostTags(Set<String> strTags) {
+
         Set<Tag> tags = new HashSet<>();
 
         if (strTags != null && !strTags.isEmpty()) {

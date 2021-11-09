@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
-import com.rafdev.prova.blog.api.dto.UserDto;
+import com.rafdev.prova.blog.api.dto.user.UserDetailsDto;
+import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.UserRequest;
@@ -35,13 +36,13 @@ public class UserController {
         return new ResponseEntity<>(userService.updateUserById(id, userRequest), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<UserDto>> getUsers() {
         return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public ResponseEntity<UserDetailsDto> getUserById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
     }
 

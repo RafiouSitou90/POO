@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.service;
 
-import com.rafdev.prova.blog.api.dto.UserDto;
+import com.rafdev.prova.blog.api.dto.user.UserDetailsDto;
+import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.request.UserRequest;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface UserService {
 
     UserDto saveUser(UserRequest userRequest);
 
-    UserDto getUserById(Long id);
+    UserDetailsDto getUserById(Long id);
 
     void deleteUserById(Long id);
 
