@@ -37,7 +37,7 @@ public class CommentController {
         return new ResponseEntity<>(commentService.updateCommentById(id, commentRequest), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<CommentDto>> getComments() {
         return new ResponseEntity<>(commentService.getComments(), HttpStatus.OK);
     }

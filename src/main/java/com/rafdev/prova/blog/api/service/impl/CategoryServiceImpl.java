@@ -26,7 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto saveCategory(CategoryRequest categoryRequest) {
+    public CategoryDto saveCategory(CategoryRequest categoryRequest) throws ResourceAlreadyExistsException {
 
         if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
             throw new ResourceAlreadyExistsException(resourceName, "Name", categoryRequest.getName());
@@ -38,7 +38,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto updateCategoryById(Long id, CategoryRequest categoryRequest) {
+    public CategoryDto updateCategoryById(Long id, CategoryRequest categoryRequest) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
 
         Category categoryFound = getCategoryOrThrowException(id);
 
@@ -65,12 +66,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDetailsDto getCategoryById(Long id) {
+    public CategoryDetailsDto getCategoryById(Long id) throws ResourceNotFoundException{
         return getCategoryDtoWithPosts(getCategoryOrThrowException(id));
     }
 
     @Override
-    public void deleteCategoryById(Long id) {
+    public void deleteCategoryById(Long id) throws ResourceNotFoundException {
         categoryRepository.delete(getCategoryOrThrowException(id));
     }
 

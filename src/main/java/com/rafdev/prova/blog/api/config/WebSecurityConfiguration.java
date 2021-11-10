@@ -1,5 +1,6 @@
 package com.rafdev.prova.blog.api.config;
 
+import com.rafdev.prova.blog.api.util.jwt.JwtAuthenticationEntryPoint;
 import com.rafdev.prova.blog.api.util.jwt.JwtTokenFilter;
 
 import org.springframework.context.annotation.Bean;
@@ -21,14 +22,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final JwtTokenFilter jwtTokenFilter;
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
 
     private static final String[] PUBLIC_URLS = {
             "/api/v2/auth/**"
     };
 
-    public WebSecurityConfiguration(UserDetailsService userDetailsService, JwtTokenFilter jwtTokenFilter) {
+    public WebSecurityConfiguration(UserDetailsService userDetailsService, JwtTokenFilter jwtTokenFilter, JwtAuthenticationEntryPoint unauthorizedHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtTokenFilter = jwtTokenFilter;
+        this.unauthorizedHandler = unauthorizedHandler;
     }
 
     @Bean
@@ -51,6 +54,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .exceptionHandling()
+                .authenticationEntryPoint(unauthorizedHandler)
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

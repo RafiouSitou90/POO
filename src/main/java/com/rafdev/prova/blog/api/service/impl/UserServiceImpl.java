@@ -70,17 +70,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDetailsDto getUserById(Long id) {
+    public UserDetailsDto getUserById(Long id) throws ResourceNotFoundException {
         return new UserDetailsDto(getUserOrThrowException(id));
     }
 
     @Override
-    public void deleteUserById(Long id) {
+    public void deleteUserById(Long id) throws ResourceNotFoundException {
         userRepository.delete(getUserOrThrowException(id));
     }
 
     @Override
-    public UserDto updateUserById(Long id, UserRequest userRequest) {
+    public UserDto updateUserById(Long id, UserRequest userRequest) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
 
         User userFound = getUserOrThrowException(id);
 

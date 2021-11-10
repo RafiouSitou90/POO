@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -35,7 +34,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto saveComment(CommentRequest commentRequest) {
+    public CommentDto saveComment(CommentRequest commentRequest) throws ResourceNotFoundException {
 
         User user = getUserOrThrowException(commentRequest.getUserId());
         Post post = getPostOrThrowException(commentRequest.getPostId());
@@ -47,7 +46,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto updateCommentById(Long id, CommentRequest commentRequest) {
+    public CommentDto updateCommentById(Long id, CommentRequest commentRequest) throws ResourceNotFoundException {
 
         Comment commentFound = getCommentOrThrowException(id);
         commentFound.setContent(commentRequest.getContent());
@@ -67,12 +66,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDetailsDto getCommentById(Long id) {
+    public CommentDetailsDto getCommentById(Long id) throws ResourceNotFoundException {
         return new CommentDetailsDto(getCommentOrThrowException(id));
     }
 
     @Override
-    public void deleteCommentById(Long id) {
+    public void deleteCommentById(Long id) throws ResourceNotFoundException {
         commentRepository.delete(getCommentOrThrowException(id));
     }
 

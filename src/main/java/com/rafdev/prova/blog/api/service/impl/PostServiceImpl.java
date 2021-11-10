@@ -37,7 +37,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDto savePost(PostRequest postRequest) {
+    public PostDto savePost(PostRequest postRequest) throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
         if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
             throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
@@ -54,7 +54,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDto updatePostById(Long id, PostRequest postRequest) {
+    public PostDto updatePostById(Long id, PostRequest postRequest) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
 
         Post postFound = getPostOrThrowException(id);
 
@@ -85,12 +86,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDetailsDto getPostById(Long id) {
+    public PostDetailsDto getPostById(Long id) throws ResourceNotFoundException {
         return getPostDtoWithComment(getPostOrThrowException(id));
     }
 
     @Override
-    public void deletePostById(Long id) {
+    public void deletePostById(Long id) throws ResourceNotFoundException {
         postRepository.delete(getPostOrThrowException(id));
     }
 

@@ -1,28 +1,15 @@
-package com.rafdev.prova.blog.api.exception;
+package com.rafdev.prova.blog.api.response;
 
 import java.time.LocalDateTime;
 
-public class ErrorDetails {
+public class ApiErrorResponse {
+
     private LocalDateTime timestamp;
     private int status;
     private String error;
     private String message;
+    private String path;
     private Object details;
-
-    public ErrorDetails(LocalDateTime timestamp, int status, String error, String message) {
-        this.timestamp = timestamp;
-        this.status = status;
-        this.error = error;
-        this.message = message;
-    }
-
-    public ErrorDetails(LocalDateTime timestamp, int status, String error, String message, Object details) {
-        this.timestamp = timestamp;
-        this.status = status;
-        this.error = error;
-        this.message = message;
-        this.details = details;
-    }
 
     public LocalDateTime getTimestamp() {
         return timestamp;
@@ -54,6 +41,14 @@ public class ErrorDetails {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public Object getDetails() {

@@ -32,7 +32,8 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDto> updateCategoryById(@PathVariable("id") Long id,
-                                                          @RequestBody @Valid CategoryRequest categoryRequest) throws ResourceNotFoundException {
+                                                          @RequestBody @Valid CategoryRequest categoryRequest)
+            throws ResourceNotFoundException, ResourceAlreadyExistsException {
         return new ResponseEntity<>(categoryService.updateCategoryById(id, categoryRequest), HttpStatus.OK);
     }
 
