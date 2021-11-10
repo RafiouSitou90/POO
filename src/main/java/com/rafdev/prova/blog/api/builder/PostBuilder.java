@@ -1,5 +1,6 @@
 package com.rafdev.prova.blog.api.builder;
 
+import com.rafdev.prova.blog.api.entity.Category;
 import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.entity.Tag;
 import com.rafdev.prova.blog.api.entity.User;
@@ -40,6 +41,12 @@ public class PostBuilder {
 
     public PostBuilder withUser(final User user) {
         post.setUser(user);
+
+        return this;
+    }
+
+    public PostBuilder withCategory(final Category category) {
+        post.setCategory(category);
 
         return this;
     }
