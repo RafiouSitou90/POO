@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,23 +35,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-    // Handle Resource Already Exists Exceptions
-    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    // Handle Bad Requests Exceptions
+    @ExceptionHandler({
+            ResourceAlreadyExistsException.class, ResourceBadRequestException.class,
+            LoginBadCredentialsException.class, ConstraintViolationException.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiErrorResponse> handleResourceAlreadyExistsException(
-            ResourceAlreadyExistsException exception, HttpServletRequest request) {
-
-        ApiErrorResponse errorDetails = getErrorDetails(HttpStatus.BAD_REQUEST, exception.getMessage(),
-                null, request);
-
-        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
-    }
-
-    // Handle Login Bad Credentials Exceptions
-    @ExceptionHandler(LoginBadCredentialsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiErrorResponse> handleLoginBadCredentialsException(
-            LoginBadCredentialsException exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleBadRequestException(
+            RuntimeException exception, HttpServletRequest request) {
 
         ApiErrorResponse errorDetails = getErrorDetails(HttpStatus.BAD_REQUEST, exception.getMessage(),
                 null, request);

@@ -9,9 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,19 +17,25 @@ import java.util.Set;
 @Table(name = "tab_posts")
 public class Post extends AbstractBaseEntity {
 
-    @NotBlank
-    @Size(min = 3, max = 100)
+    @NotBlank(message = "The title cannot be blank")
+    @Size.List ({
+            @Size(min = 3, message = "The title must be at least {min} characters"),
+            @Size(max = 100, message = "The title must be less than {max} characters")
+    })
     @Column(unique = true, nullable = false)
     private String title;
 
     @Column(unique = true, nullable = false)
     private String slug;
 
-    @Size(min = 10)
+    @NotBlank(message = "The content cannot be blank")
+    @Size.List ({
+            @Size(min = 10, message = "The content must be at least {min} characters")
+    })
     @Column
     private String content;
 
-    @URL
+    @URL(message = "Invalid image url")
     @Column
     private String imageUrl;
 
@@ -89,6 +93,10 @@ public class Post extends AbstractBaseEntity {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public String getSlug() {
