@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
-import com.rafdev.prova.blog.api.dto.CommentDto;
+import com.rafdev.prova.blog.api.dto.comment.CommentDetailsDto;
+import com.rafdev.prova.blog.api.dto.comment.CommentDto;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.CommentRequest;
 import com.rafdev.prova.blog.api.service.CommentService;
@@ -13,9 +14,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/comments")
-//@PreAuthorize("hasRole('USER')")
-//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+@RequestMapping("api/v2/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -24,9 +23,10 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<CommentDto> saveComment(@RequestBody @Valid CommentRequest commentRequest)
             throws ResourceNotFoundException {
+
         return new ResponseEntity<>(commentService.saveComment(commentRequest), HttpStatus.CREATED);
     }
 
@@ -37,13 +37,13 @@ public class CommentController {
         return new ResponseEntity<>(commentService.updateCommentById(id, commentRequest), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<CommentDto>> getComments() {
         return new ResponseEntity<>(commentService.getComments(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CommentDto> getCommentById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public ResponseEntity<CommentDetailsDto> getCommentById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return new ResponseEntity<>(commentService.getCommentById(id), HttpStatus.OK);
     }
 

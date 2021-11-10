@@ -1,32 +1,27 @@
-package com.rafdev.prova.blog.api.dto;
+package com.rafdev.prova.blog.api.dto.comment;
 
+import com.rafdev.prova.blog.api.dto.AbstractBaseDto;
+import com.rafdev.prova.blog.api.dto.post.PostDto;
+import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.entity.Comment;
-import com.rafdev.prova.blog.api.entity.Post;
-import com.rafdev.prova.blog.api.entity.User;
 
 import java.time.LocalDateTime;
 
-public class CommentDto {
+public class CommentDetailsDto extends AbstractBaseDto {
 
-    private Long id;
     private String content;
-    private String user;
-    private String post;
+    private UserDto user;
+    private PostDto post;
     private LocalDateTime publishedAt;
 
-    public CommentDto(Comment comment) {
+    public CommentDetailsDto(Comment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
-
-        if (comment.getUser() != null) {
-            this.user = getResourcePath("users", comment.getUser().getId());
-        }
-
-        if (comment.getPost() != null) {
-            this.post = getResourcePath("posts", comment.getPost().getId());
-        }
-
+        this.user = new UserDto(comment.getUser());
+        this.post = new PostDto(comment.getPost());
         this.publishedAt = comment.getPublishedAt();
+        this.createdAt = comment.getCreatedAt();
+        this.updatedAt = comment.getUpdatedAt();
     }
 
     public Long getId() {
@@ -45,19 +40,19 @@ public class CommentDto {
         this.content = content;
     }
 
-    public String getUser() {
+    public UserDto getUser() {
         return user;
     }
 
-    public void setUser(String user) {
+    public void setUser(UserDto user) {
         this.user = user;
     }
 
-    public String getPost() {
+    public PostDto getPost() {
         return post;
     }
 
-    public void setPost(String post) {
+    public void setPost(PostDto post) {
         this.post = post;
     }
 
@@ -67,9 +62,5 @@ public class CommentDto {
 
     public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
-    }
-
-    private String getResourcePath(String resourceName, Long resourceId) {
-        return String.format("/api/v1/%s/%s", resourceName, resourceId);
     }
 }

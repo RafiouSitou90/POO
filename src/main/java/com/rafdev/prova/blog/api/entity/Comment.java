@@ -1,15 +1,17 @@
 package com.rafdev.prova.blog.api.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tab_comments")
 public class Comment extends AbstractBaseEntity {
 
+    @NotBlank
+    @Size(min = 10)
+    @Column
     private String content;
 
     @ManyToOne(targetEntity = User.class, optional = false)
@@ -20,17 +22,17 @@ public class Comment extends AbstractBaseEntity {
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     private Post post;
 
+    @Column
     private LocalDateTime publishedAt;
+
+    public Comment() {
+    }
 
     public Comment(String content, User user, Post post, LocalDateTime publishedAt) {
         this.content = content;
         this.user = user;
         this.post = post;
         this.publishedAt = publishedAt;
-    }
-
-    public Comment() {
-
     }
 
     public String getContent() {

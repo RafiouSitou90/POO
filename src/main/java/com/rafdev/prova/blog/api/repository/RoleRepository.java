@@ -1,6 +1,6 @@
 package com.rafdev.prova.blog.api.repository;
 
-import com.rafdev.prova.blog.api.entity.ERole;
+import com.rafdev.prova.blog.api.enums.ERole;
 import com.rafdev.prova.blog.api.entity.Role;
 
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
+
     Boolean existsByTitleIgnoreCase(String title);
 
     Post findByTitleIgnoreCase(String title);

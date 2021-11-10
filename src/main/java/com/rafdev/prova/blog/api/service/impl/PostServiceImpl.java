@@ -1,75 +1,71 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.dto.CommentDto;
-import com.rafdev.prova.blog.api.dto.PostDto;
-import com.rafdev.prova.blog.api.entity.Category;
-import com.rafdev.prova.blog.api.entity.Comment;
-import com.rafdev.prova.blog.api.entity.Post;
-import com.rafdev.prova.blog.api.entity.User;
+import com.rafdev.prova.blog.api.dto.comment.CommentDto;
+import com.rafdev.prova.blog.api.dto.post.PostDetailsDto;
+import com.rafdev.prova.blog.api.dto.post.PostDto;
+import com.rafdev.prova.blog.api.entity.*;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
-import com.rafdev.prova.blog.api.repository.CategoryRepository;
-import com.rafdev.prova.blog.api.repository.CommentRepository;
-import com.rafdev.prova.blog.api.repository.PostRepository;
-import com.rafdev.prova.blog.api.repository.UserRepository;
+import com.rafdev.prova.blog.api.repository.*;
 import com.rafdev.prova.blog.api.request.PostRequest;
 import com.rafdev.prova.blog.api.service.PostService;
 
+import com.rafdev.prova.blog.api.service.TagService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
 @Service
 public class PostServiceImpl implements PostService {
 
     private final String resourceName = "Post";
-    private final AtomicLong idCounter = new AtomicLong(100);
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final TagRepository tagRepository;
+    private final TagService tagService;
 
     public PostServiceImpl(PostRepository postRepository, CategoryRepository categoryRepository,
-                           UserRepository userRepository, CommentRepository commentRepository) {
+                           UserRepository userRepository, CommentRepository commentRepository, TagRepository tagRepository, TagService tagService) {
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.tagRepository = tagRepository;
+        this.tagService = tagService;
     }
 
     @Override
-    public PostDto savePost(PostRequest postRequest) {
+    public PostDto savePost(PostRequest postRequest) throws ResourceNotFoundException, ResourceAlreadyExistsException {
 
         if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
             throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
         }
 
         User user = getUserOrThrowException(postRequest.getUserId());
-
         Category category = getCategoryOrThrowException(postRequest.getCategoryId());
+        Set<Tag> tags = getPostTags(postRequest.getTags());
 
         Post post = new Post(postRequest.getTitle(), postRequest.getContent(),
-                postRequest.getImageUrl(), user, category, postRequest.getPublishedAt());
+                postRequest.getImageUrl(), postRequest.getPublishedAt(), user, category, tags);
 
         return new PostDto(postRepository.save(post));
     }
 
     @Override
-    public PostDto updatePostById(Long id, PostRequest postRequest) {
+    public PostDto updatePostById(Long id, PostRequest postRequest) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
+
         Post postFound = getPostOrThrowException(id);
 
-        if(!Objects.equals(postFound.getTitle().toLowerCase(), postRequest.getTitle().toLowerCase())) {
+        if (!Objects.equals(postFound.getTitle().toLowerCase(), postRequest.getTitle().toLowerCase())) {
             if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
                 throw new ResourceAlreadyExistsException(resourceName, "Title", postRequest.getTitle());
             }
         }
 
         Category category = getCategoryOrThrowException(postRequest.getCategoryId());
-
         postFound.setTitle(postRequest.getTitle());
         postFound.setContent(postRequest.getContent());
         postFound.setImageUrl(postRequest.getImageUrl());
@@ -80,52 +76,62 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDto> getPosts() {
+
         List<PostDto> postsDto = new ArrayList<>();
         List<Post> posts = postRepository.findAll();
 
-        for (Post post: posts) {
-            postsDto.add(new PostDto(post));
-        }
+        posts.forEach(post -> postsDto.add(new PostDto(post)));
 
         return postsDto;
     }
 
     @Override
-    public PostDto getPostById(Long id) {
-        Post post = getPostOrThrowException(id);
-
-        return setPostDtoWithComment(post);
+    public PostDetailsDto getPostById(Long id) throws ResourceNotFoundException {
+        return getPostDtoWithComment(getPostOrThrowException(id));
     }
 
     @Override
-    public void deletePostById(Long id) {
-        Post post = getPostOrThrowException(id);
-
-        postRepository.delete(post);
+    public void deletePostById(Long id) throws ResourceNotFoundException {
+        postRepository.delete(getPostOrThrowException(id));
     }
 
-    private PostDto setPostDtoWithComment(Post post) {
-        List<Comment> commentsList = commentRepository.findAllByPostId(post.getId());
-        List<CommentDto> commentsListDto = new ArrayList<>();
+    private PostDetailsDto getPostDtoWithComment(Post post) {
 
-        for (Comment comment: commentsList) {
-            CommentDto commentDto = new CommentDto(comment);
+        List<Comment> comments = commentRepository.findAllByPostId(post.getId());
+        Set<CommentDto> commentsDto = new HashSet<>();
 
-            commentsListDto.add(commentDto);
-        }
+        comments.forEach(comment -> commentsDto.add(new CommentDto(comment)));
 
-        return new PostDto(post, commentsListDto);
+        return new PostDetailsDto(post, commentsDto);
     }
+
     private Post getPostOrThrowException(Long id) {
         return postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
     }
 
     private User getUserOrThrowException(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
     }
 
     private Category getCategoryOrThrowException(Long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", id));
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "Id", id));
+    }
+
+    private Set<Tag> getPostTags(Set<String> strTags) {
+
+        Set<Tag> tags = new HashSet<>();
+
+        if (strTags != null && !strTags.isEmpty()) {
+            strTags.forEach(tag -> tags.add(getTagByName(tag)));
+        }
+
+        return tags;
+    }
+
+    private Tag getTagByName(String name) {
+        return tagService.getOrCreateByName(name);
     }
 }

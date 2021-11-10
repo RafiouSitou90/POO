@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
-import com.rafdev.prova.blog.api.dto.UserDto;
+import com.rafdev.prova.blog.api.dto.user.UserDetailsDto;
+import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.UserRequest;
@@ -14,9 +15,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/users")
-//@PreAuthorize("hasRole('USER')")
-//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+@RequestMapping("api/v2/users")
 public class UserController {
 
     private final UserService userService;
@@ -25,7 +24,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<UserDto> saveUser(@RequestBody @Valid UserRequest userRequest)
             throws ResourceAlreadyExistsException {
         return new ResponseEntity<>(userService.saveUser(userRequest), HttpStatus.CREATED);
@@ -37,13 +36,13 @@ public class UserController {
         return new ResponseEntity<>(userService.updateUserById(id, userRequest), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<UserDto>> getUsers() {
         return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public ResponseEntity<UserDetailsDto> getUserById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
     }
 

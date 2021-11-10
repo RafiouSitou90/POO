@@ -18,13 +18,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class TokenFilter extends OncePerRequestFilter {
+public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    public TokenFilter(UserDetailsService userDetailsService, UserRepository userRepository, JwtUtil jwtUtil) {
+    public JwtTokenFilter(UserDetailsService userDetailsService, UserRepository userRepository, JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;

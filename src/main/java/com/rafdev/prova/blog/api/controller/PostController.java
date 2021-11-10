@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
-import com.rafdev.prova.blog.api.dto.PostDto;
+import com.rafdev.prova.blog.api.dto.post.PostDetailsDto;
+import com.rafdev.prova.blog.api.dto.post.PostDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.PostRequest;
@@ -14,9 +15,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/posts")
-//@PreAuthorize("hasRole('USER')")
-//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+@RequestMapping("api/v2/posts")
 public class PostController {
 
     private final PostService postService;
@@ -25,7 +24,7 @@ public class PostController {
         this.postService = postService;
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<PostDto> savePost(@RequestBody @Valid PostRequest postRequest)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
         return new ResponseEntity<>(postService.savePost(postRequest), HttpStatus.CREATED);
@@ -38,13 +37,13 @@ public class PostController {
         return new ResponseEntity<>(postService.updatePostById(id, postRequest), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<PostDto>> getPosts() {
         return new ResponseEntity<>(postService.getPosts(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostDto> getPostById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public ResponseEntity<PostDetailsDto> getPostById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return new ResponseEntity<>(postService.getPostById(id), HttpStatus.OK);
     }
 

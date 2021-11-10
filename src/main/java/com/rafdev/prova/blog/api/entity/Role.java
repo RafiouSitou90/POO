@@ -1,22 +1,22 @@
 package com.rafdev.prova.blog.api.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import com.rafdev.prova.blog.api.enums.ERole;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "tab_roles")
 public class Role extends AbstractBaseEntity{
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, unique = true, length = 30)
     private ERole name;
+
+    public Role() {
+    }
 
     public Role(ERole name) {
         this.name = name;
-    }
-
-    public Role() {
     }
 
     public ERole getName() {

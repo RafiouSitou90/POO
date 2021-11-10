@@ -8,7 +8,7 @@ public abstract class AbstractBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long Id;
+    protected Long id;
 
     @Column(updatable = false, nullable = false)
     protected LocalDateTime createdAt;
@@ -17,7 +17,7 @@ public abstract class AbstractBaseEntity {
     protected LocalDateTime updatedAt;
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public LocalDateTime getCreatedAt() {

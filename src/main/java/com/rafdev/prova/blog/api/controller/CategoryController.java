@@ -1,6 +1,7 @@
 package com.rafdev.prova.blog.api.controller;
 
-import com.rafdev.prova.blog.api.dto.CategoryDto;
+import com.rafdev.prova.blog.api.dto.category.CategoryDetailsDto;
+import com.rafdev.prova.blog.api.dto.category.CategoryDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.request.CategoryRequest;
@@ -8,16 +9,13 @@ import com.rafdev.prova.blog.api.service.CategoryService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/categories")
-//@PreAuthorize("hasRole('USER')")
-//@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+@RequestMapping("api/v2/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -26,7 +24,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<CategoryDto> saveCategory(@RequestBody @Valid CategoryRequest categoryRequest)
             throws ResourceAlreadyExistsException {
         return new ResponseEntity<>(categoryService.saveCategory(categoryRequest), HttpStatus.CREATED);
@@ -35,17 +33,17 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDto> updateCategoryById(@PathVariable("id") Long id,
                                                           @RequestBody @Valid CategoryRequest categoryRequest)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, ResourceAlreadyExistsException {
         return new ResponseEntity<>(categoryService.updateCategoryById(id, categoryRequest), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<CategoryDto>> getCategories() {
         return new ResponseEntity<>(categoryService.getCategories(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public ResponseEntity<CategoryDetailsDto> getCategoryById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return new ResponseEntity<>(categoryService.getCategoryById(id), HttpStatus.OK);
     }
 

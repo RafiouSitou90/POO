@@ -1,6 +1,6 @@
 CREATE TABLE tab_tags
 (
-    id         BIGINT       NOT NULL,
+    id         BIGSERIAL    NOT NULL,
     name       VARCHAR(100) NOT NULL,
     created_at TIMESTAMP    NOT NULL,
     updated_at TIMESTAMP
