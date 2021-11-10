@@ -1,5 +1,6 @@
 package com.rafdev.prova.blog.api.service.impl;
 
+import com.rafdev.prova.blog.api.builder.CommentBuilder;
 import com.rafdev.prova.blog.api.dto.comment.CommentDetailsDto;
 import com.rafdev.prova.blog.api.dto.comment.CommentDto;
 import com.rafdev.prova.blog.api.entity.Comment;
@@ -39,8 +40,12 @@ public class CommentServiceImpl implements CommentService {
         User user = getUserOrThrowException(commentRequest.getUserId());
         Post post = getPostOrThrowException(commentRequest.getPostId());
 
-        Comment comment = new Comment(commentRequest.getContent(), user, post,
-                LocalDateTime.now());
+        Comment comment = new CommentBuilder()
+                .withContent(commentRequest.getContent())
+                .withUser(user)
+                .withPost(post)
+                .withPublishedAt(LocalDateTime.now())
+                .build();
 
         return new CommentDto(commentRepository.save(comment));
     }

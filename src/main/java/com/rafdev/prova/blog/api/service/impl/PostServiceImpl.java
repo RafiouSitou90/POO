@@ -1,5 +1,6 @@
 package com.rafdev.prova.blog.api.service.impl;
 
+import com.rafdev.prova.blog.api.builder.PostBuilder;
 import com.rafdev.prova.blog.api.dto.comment.CommentDto;
 import com.rafdev.prova.blog.api.dto.post.PostDetailsDto;
 import com.rafdev.prova.blog.api.dto.post.PostDto;
@@ -47,8 +48,16 @@ public class PostServiceImpl implements PostService {
         Category category = getCategoryOrThrowException(postRequest.getCategoryId());
         Set<Tag> tags = getPostTags(postRequest.getTags());
 
-        Post post = new Post(postRequest.getTitle(), postRequest.getContent(),
-                postRequest.getImageUrl(), postRequest.getPublishedAt(), user, category, tags);
+
+        Post post = new PostBuilder()
+                .withTitle(postRequest.getTitle())
+                .withContent(postRequest.getContent())
+                .withImageUrl(postRequest.getImageUrl())
+                .withPublishedAt(postRequest.getPublishedAt())
+                .withUser(user)
+                .withCategory(category)
+                .withTags(tags)
+                .build();
 
         return new PostDto(postRepository.save(post));
     }
