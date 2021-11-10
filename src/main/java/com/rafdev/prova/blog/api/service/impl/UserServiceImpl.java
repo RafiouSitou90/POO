@@ -1,5 +1,6 @@
 package com.rafdev.prova.blog.api.service.impl;
 
+import com.rafdev.prova.blog.api.builder.UserBuilder;
 import com.rafdev.prova.blog.api.dto.user.UserDetailsDto;
 import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.enums.ERole;
@@ -61,10 +62,14 @@ public class UserServiceImpl implements UserService {
             throw new ResourceAlreadyExistsException(resourceName, "Username", userRequest.getUsername());
         }
 
-        Set<Role> roles = getUserRoles(userRequest.getRoles());
-
-        User user = new User(userRequest.getUsername(), userRequest.getEmail(),
-                getPasswordHashed(userRequest.getPassword()), userRequest.getFirstName(), userRequest.getLastName(), roles);
+        User user = new UserBuilder()
+                .withUsername(userRequest.getUsername())
+                .withEmail(userRequest.getEmail())
+                .withPassword(getPasswordHashed(userRequest.getPassword()))
+                .withFirstName(userRequest.getFirstName())
+                .withLastName(userRequest.getLastName())
+                .withRoles(getUserRoles(userRequest.getRoles()))
+                .build();
 
         return new UserDto(userRepository.save(user));
     }
