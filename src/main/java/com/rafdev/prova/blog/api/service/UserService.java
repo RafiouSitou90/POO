@@ -4,13 +4,14 @@ import com.rafdev.prova.blog.api.dto.user.UserDetailsDto;
 import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.UserPagination;
 import com.rafdev.prova.blog.api.request.UserRequest;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface UserService {
 
-    List<UserDto> getUsers();
+    Page<UserDto> getUsers(UserPagination pagination);
 
     UserDto saveUser(UserRequest userRequest) throws ResourceAlreadyExistsException;
 

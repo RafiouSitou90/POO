@@ -7,11 +7,15 @@ import com.rafdev.prova.blog.api.dto.post.PostDto;
 import com.rafdev.prova.blog.api.entity.*;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.PostPagination;
 import com.rafdev.prova.blog.api.repository.*;
 import com.rafdev.prova.blog.api.request.PostRequest;
 import com.rafdev.prova.blog.api.service.PostService;
 
 import com.rafdev.prova.blog.api.service.TagService;
+import com.rafdev.prova.blog.api.util.UtilityFunctions;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -84,14 +88,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getPosts() {
+    public Page<PostDto> getPosts(PostPagination pagination) {
+        Pageable pageable = UtilityFunctions.getPageable(pagination);
+        Page<Post> posts = postRepository.findAll(pageable);
 
-        List<PostDto> postsDto = new ArrayList<>();
-        List<Post> posts = postRepository.findAll();
-
-        posts.forEach(post -> postsDto.add(new PostDto(post)));
-
-        return postsDto;
+        return posts.map(PostDto::new);
     }
 
     @Override

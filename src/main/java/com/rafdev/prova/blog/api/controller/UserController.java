@@ -4,15 +4,16 @@ import com.rafdev.prova.blog.api.dto.user.UserDetailsDto;
 import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.UserPagination;
 import com.rafdev.prova.blog.api.request.UserRequest;
 import com.rafdev.prova.blog.api.service.UserService;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v2/users")
@@ -37,8 +38,8 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getUsers() {
-        return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
+    public ResponseEntity<Page<UserDto>> getUsers(UserPagination pagination) {
+        return new ResponseEntity<>(userService.getUsers(pagination), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

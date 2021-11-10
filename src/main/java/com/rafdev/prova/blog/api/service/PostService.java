@@ -4,9 +4,10 @@ import com.rafdev.prova.blog.api.dto.post.PostDetailsDto;
 import com.rafdev.prova.blog.api.dto.post.PostDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.PostPagination;
 import com.rafdev.prova.blog.api.request.PostRequest;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface PostService {
 
@@ -14,7 +15,7 @@ public interface PostService {
 
     PostDto updatePostById(Long id, PostRequest postRequest) throws ResourceNotFoundException, ResourceAlreadyExistsException;
 
-    List<PostDto> getPosts();
+    Page<PostDto> getPosts(PostPagination pagination);
 
     PostDetailsDto getPostById(Long id) throws ResourceNotFoundException;
 

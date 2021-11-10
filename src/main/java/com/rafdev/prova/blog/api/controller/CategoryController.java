@@ -4,15 +4,16 @@ import com.rafdev.prova.blog.api.dto.category.CategoryDetailsDto;
 import com.rafdev.prova.blog.api.dto.category.CategoryDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.CategoryPagination;
 import com.rafdev.prova.blog.api.request.CategoryRequest;
 import com.rafdev.prova.blog.api.service.CategoryService;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v2/categories")
@@ -38,8 +39,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> getCategories() {
-        return new ResponseEntity<>(categoryService.getCategories(), HttpStatus.OK);
+    public ResponseEntity<Page<CategoryDto>> getCategories(CategoryPagination pagination) {
+        return new ResponseEntity<>(categoryService.getCategories(pagination), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

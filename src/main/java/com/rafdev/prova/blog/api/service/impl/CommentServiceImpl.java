@@ -7,17 +7,19 @@ import com.rafdev.prova.blog.api.entity.Comment;
 import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.entity.User;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.CommentPagination;
 import com.rafdev.prova.blog.api.repository.CommentRepository;
 import com.rafdev.prova.blog.api.repository.PostRepository;
 import com.rafdev.prova.blog.api.repository.UserRepository;
 import com.rafdev.prova.blog.api.request.CommentRequest;
 import com.rafdev.prova.blog.api.service.CommentService;
 
+import com.rafdev.prova.blog.api.util.UtilityFunctions;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -60,14 +62,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDto> getComments() {
+    public Page<CommentDto> getComments(CommentPagination pagination) {
+        Pageable pageable = UtilityFunctions.getPageable(pagination);
+        Page<Comment> comments = commentRepository.findAll(pageable);
 
-        List<Comment> comments = commentRepository.findAll();
-        List<CommentDto> commentsDto = new ArrayList<>();
-
-        comments.forEach(comment -> commentsDto.add(new CommentDto(comment)));
-
-        return commentsDto;
+        return comments.map(CommentDto::new);
     }
 
     @Override

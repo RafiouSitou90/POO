@@ -7,10 +7,14 @@ import com.rafdev.prova.blog.api.entity.Category;
 import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.CategoryPagination;
 import com.rafdev.prova.blog.api.repository.CategoryRepository;
 import com.rafdev.prova.blog.api.request.CategoryRequest;
 import com.rafdev.prova.blog.api.service.CategoryService;
 
+import com.rafdev.prova.blog.api.util.UtilityFunctions;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -55,14 +59,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> getCategories() {
+    public Page<CategoryDto> getCategories(CategoryPagination pagination) {
+        Pageable pageable = UtilityFunctions.getPageable(pagination);
+        Page<Category> categories = categoryRepository.findAll(pageable);
 
-        List<CategoryDto> categoriesDto = new ArrayList<>();
-        List<Category> categories = categoryRepository.findAll();
-
-        categories.forEach(category -> categoriesDto.add(new CategoryDto(category)));
-
-        return categoriesDto;
+        return categories.map(CategoryDto::new);
     }
 
     @Override

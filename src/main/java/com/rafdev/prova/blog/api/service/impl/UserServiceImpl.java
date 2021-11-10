@@ -8,23 +8,25 @@ import com.rafdev.prova.blog.api.entity.Role;
 import com.rafdev.prova.blog.api.entity.User;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.UserPagination;
 import com.rafdev.prova.blog.api.repository.RoleRepository;
 import com.rafdev.prova.blog.api.repository.UserRepository;
 import com.rafdev.prova.blog.api.request.UserRequest;
 import com.rafdev.prova.blog.api.service.RoleService;
 import com.rafdev.prova.blog.api.service.UserService;
 
+import com.rafdev.prova.blog.api.util.UtilityFunctions;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final String resourceName = "User";
-    private final AtomicLong idCounter = new AtomicLong(10);
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -38,17 +40,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers() {
-        List<UserDto> usersDto = new ArrayList<>();
-        List<User> users = userRepository.findAll();
+    public Page<UserDto> getUsers(UserPagination pagination) {
+        Pageable pageable = UtilityFunctions.getPageable(pagination);
+        Page<User> users = userRepository.findAll(pageable);
 
-        for (User user : users) {
-            UserDto userDto = new UserDto(user);
-
-            usersDto.add(userDto);
-        }
-
-        return usersDto;
+        return users.map(UserDto::new);
     }
 
     @Override

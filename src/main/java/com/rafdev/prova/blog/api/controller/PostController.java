@@ -4,15 +4,16 @@ import com.rafdev.prova.blog.api.dto.post.PostDetailsDto;
 import com.rafdev.prova.blog.api.dto.post.PostDto;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.PostPagination;
 import com.rafdev.prova.blog.api.request.PostRequest;
 import com.rafdev.prova.blog.api.service.PostService;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v2/posts")
@@ -38,8 +39,8 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> getPosts() {
-        return new ResponseEntity<>(postService.getPosts(), HttpStatus.OK);
+    public ResponseEntity<Page<PostDto>> getPosts(PostPagination pagination) {
+        return new ResponseEntity<>(postService.getPosts(pagination), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
