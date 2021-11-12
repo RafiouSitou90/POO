@@ -2,6 +2,7 @@ package com.rafdev.prova.blog.api.service;
 
 import com.rafdev.prova.blog.api.dto.user.UserDetailsDto;
 import com.rafdev.prova.blog.api.dto.user.UserDto;
+import com.rafdev.prova.blog.api.enums.ERole;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.pagination.UserPagination;
@@ -20,4 +21,10 @@ public interface UserService {
     void deleteUserById(Long id) throws ResourceNotFoundException;
 
     UserDto updateUserById(Long id, UserRequest userRequest) throws ResourceNotFoundException, ResourceAlreadyExistsException;
+
+    UserDto changeUserRoles(Long id, ERole[] roles) throws ResourceNotFoundException;
+
+    void activateUser(Long id) throws ResourceNotFoundException;
+
+    void deactivateUser(Long id) throws ResourceNotFoundException;
 }

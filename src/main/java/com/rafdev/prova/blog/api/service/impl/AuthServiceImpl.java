@@ -4,6 +4,7 @@ import com.rafdev.prova.blog.api.dto.user.UserDto;
 import com.rafdev.prova.blog.api.entity.Role;
 import com.rafdev.prova.blog.api.entity.User;
 import com.rafdev.prova.blog.api.exception.LoginBadCredentialsException;
+import com.rafdev.prova.blog.api.exception.UserAccountDeactivatedException;
 import com.rafdev.prova.blog.api.request.SignInRequest;
 import com.rafdev.prova.blog.api.request.UserRequest;
 import com.rafdev.prova.blog.api.response.JwtResponse;
@@ -13,8 +14,10 @@ import com.rafdev.prova.blog.api.service.UserService;
 import com.rafdev.prova.blog.api.util.jwt.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -46,8 +49,12 @@ public class AuthServiceImpl implements AuthService {
                             signInRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (BadCredentialsException exception) {
-            throw new LoginBadCredentialsException();
+        } catch (AuthenticationException exception) {
+            if (exception instanceof BadCredentialsException) {
+                throw new LoginBadCredentialsException();
+            } else if (exception instanceof DisabledException) {
+                throw new UserAccountDeactivatedException();
+            }
         }
 
         final User user = (User) userDetailsService.loadUserByUsername(signInRequest.getUsername());

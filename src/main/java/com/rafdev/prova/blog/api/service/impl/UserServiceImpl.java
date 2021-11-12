@@ -9,13 +9,12 @@ import com.rafdev.prova.blog.api.entity.User;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
 import com.rafdev.prova.blog.api.pagination.UserPagination;
-import com.rafdev.prova.blog.api.repository.RoleRepository;
 import com.rafdev.prova.blog.api.repository.UserRepository;
 import com.rafdev.prova.blog.api.request.UserRequest;
 import com.rafdev.prova.blog.api.service.RoleService;
 import com.rafdev.prova.blog.api.service.UserService;
-
 import com.rafdev.prova.blog.api.util.UtilityFunctions;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,13 +27,11 @@ public class UserServiceImpl implements UserService {
 
     private final String resourceName = "User";
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
     }
@@ -108,6 +105,30 @@ public class UserServiceImpl implements UserService {
         userFound.setRoles(roles);
 
         return new UserDto(userRepository.save(userFound));
+    }
+
+    @Override
+    public UserDto changeUserRoles(Long id, ERole[] roles) throws ResourceNotFoundException {
+        User user = getUserOrThrowException(id);
+        Set<Role> newRoles = getUserRoles(roles);
+
+        user.setRoles(newRoles);
+
+        return new UserDto(userRepository.save(user));
+    }
+
+    @Override
+    public void activateUser(Long id) throws ResourceNotFoundException {
+        User user = getUserOrThrowException(id);
+        user.setEnabled(true);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deactivateUser(Long id) throws ResourceNotFoundException {
+        User user = getUserOrThrowException(id);
+        user.setEnabled(false);
+        userRepository.save(user);
     }
 
     private String getPasswordHashed(String password) {
