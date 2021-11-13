@@ -6,6 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public class PostRequest {
 
@@ -33,14 +34,10 @@ public class PostRequest {
 
     private LocalDateTime publishedAt;
 
-    public PostRequest(String title, String content, String imageUrl, Long userId, Long categoryId, LocalDateTime publishedAt) {
-        this.title = title;
-        this.content = content;
-        this.imageUrl = imageUrl;
-        this.userId = userId;
-        this.categoryId = categoryId;
-        this.publishedAt = publishedAt;
-    }
+    @Size.List ({
+            @Size(max = 5, message = "The tag must be less than or equals {max}")
+    })
+    private Set<String> tags;
 
     public String getTitle() {
         return title;
@@ -64,5 +61,9 @@ public class PostRequest {
 
     public LocalDateTime getPublishedAt() {
         return publishedAt;
+    }
+
+    public Set<String> getTags() {
+        return tags;
     }
 }

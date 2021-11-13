@@ -1,21 +1,22 @@
 package com.rafdev.prova.blog.api.entity;
 
-public class Role {
+import com.rafdev.prova.blog.api.enums.ERole;
 
-    private Long id;
+import javax.persistence.*;
+
+@Entity
+@Table(name = "tab_roles")
+public class Role extends AbstractBaseEntity{
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, unique = true, length = 30)
     private ERole name;
 
-    public Role(Long id, ERole name) {
-        this.id = id;
+    public Role() {
+    }
+
+    public Role(ERole name) {
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public ERole getName() {
