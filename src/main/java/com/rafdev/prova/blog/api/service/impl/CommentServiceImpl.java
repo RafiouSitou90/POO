@@ -13,8 +13,8 @@ import com.rafdev.prova.blog.api.repository.PostRepository;
 import com.rafdev.prova.blog.api.repository.UserRepository;
 import com.rafdev.prova.blog.api.request.CommentRequest;
 import com.rafdev.prova.blog.api.service.CommentService;
-
 import com.rafdev.prova.blog.api.util.UtilityFunctions;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -56,6 +56,10 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto updateCommentById(Long id, CommentRequest commentRequest) throws ResourceNotFoundException {
 
         Comment commentFound = getCommentOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                commentFound.getUser(), "Access denied! You don't have to access to update this Comment"
+        );
+
         commentFound.setContent(commentRequest.getContent());
 
         return new CommentDto(commentRepository.save(commentFound));
@@ -76,7 +80,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteCommentById(Long id) throws ResourceNotFoundException {
-        commentRepository.delete(getCommentOrThrowException(id));
+        Comment comment = getCommentOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                comment.getUser(), "Access denied! You don't have to access to delete this Comment"
+        );
+
+        commentRepository.delete(comment);
     }
 
     private Comment getCommentOrThrowException(long id) {

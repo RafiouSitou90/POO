@@ -69,11 +69,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetailsDto getUserById(Long id) throws ResourceNotFoundException {
+        User user = getUserOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(user, "Access denied! You don't have to access to show this User");
+
         return new UserDetailsDto(getUserOrThrowException(id));
     }
 
     @Override
     public void deleteUserById(Long id) throws ResourceNotFoundException {
+        User user = getUserOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(user, "Access denied! You don't have to access to delete this User");
+
         userRepository.delete(getUserOrThrowException(id));
     }
 
@@ -82,6 +88,7 @@ public class UserServiceImpl implements UserService {
             ResourceAlreadyExistsException {
 
         User userFound = getUserOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(userFound, "Access denied! You don't have to access to update this User");
 
         Set<Role> roles = getUserRoles(userRequest.getRoles());
 
