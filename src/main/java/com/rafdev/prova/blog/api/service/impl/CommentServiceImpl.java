@@ -1,28 +1,30 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.dto.CommentDto;
+import com.rafdev.prova.blog.api.builder.CommentBuilder;
+import com.rafdev.prova.blog.api.dto.comment.CommentDetailsDto;
+import com.rafdev.prova.blog.api.dto.comment.CommentDto;
 import com.rafdev.prova.blog.api.entity.Comment;
 import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.entity.User;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.CommentPagination;
 import com.rafdev.prova.blog.api.repository.CommentRepository;
 import com.rafdev.prova.blog.api.repository.PostRepository;
 import com.rafdev.prova.blog.api.repository.UserRepository;
 import com.rafdev.prova.blog.api.request.CommentRequest;
 import com.rafdev.prova.blog.api.service.CommentService;
+import com.rafdev.prova.blog.api.util.UtilityFunctions;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class CommentServiceImpl implements CommentService {
 
     private final String resourceName = "Comment";
-    private final AtomicLong idCounter = new AtomicLong(100);
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
@@ -35,75 +37,69 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto saveComment(CommentRequest commentRequest) {
+    public CommentDto saveComment(CommentRequest commentRequest) throws ResourceNotFoundException {
 
-        User user = userRepository.findById(commentRequest.getUserId());
-        if (user == null) {
-            throw new ResourceNotFoundException("User", "Id", commentRequest.getUserId());
-        }
+        User user = getUserOrThrowException(commentRequest.getUserId());
+        Post post = getPostOrThrowException(commentRequest.getPostId());
 
-        Post post = postRepository.findById(commentRequest.getPostId());
-        if (post == null) {
-            throw new ResourceNotFoundException("Post", "Id", commentRequest.getUserId());
-        }
+        Comment comment = new CommentBuilder()
+                .withContent(commentRequest.getContent())
+                .withUser(user)
+                .withPost(post)
+                .withPublishedAt(LocalDateTime.now())
+                .build();
 
-        Comment comment = new Comment(idCounter.incrementAndGet(), commentRequest.getContent(), user, post,
-                LocalDateTime.now());
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setUpdatedAt(null);
-
-        Comment commentCreated = commentRepository.save(comment);
-
-        return new CommentDto(commentCreated);
+        return new CommentDto(commentRepository.save(comment));
     }
 
     @Override
-    public CommentDto updateCommentById(Long id, CommentRequest commentRequest) {
-        Comment commentFound = commentRepository.findById(id);
+    public CommentDto updateCommentById(Long id, CommentRequest commentRequest) throws ResourceNotFoundException {
 
-        if (commentFound == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        Comment commentFound = getCommentOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                commentFound.getUser(), "Access denied! You don't have to access to update this Comment"
+        );
 
         commentFound.setContent(commentRequest.getContent());
-        commentFound.setUpdatedAt(LocalDateTime.now());
 
-        Comment commentUpdated = commentRepository.update(commentFound);
-
-        return new CommentDto(commentUpdated);
+        return new CommentDto(commentRepository.save(commentFound));
     }
 
     @Override
-    public List<CommentDto> getComments() {
-        List<Comment> comments = commentRepository.findAll();
-        List<CommentDto> commentsDto = new ArrayList<>();
+    public Page<CommentDto> getComments(CommentPagination pagination) {
+        Pageable pageable = UtilityFunctions.getPageable(pagination);
+        Page<Comment> comments = commentRepository.findAll(pageable);
 
-        for (Comment comment: comments) {
-            commentsDto.add(new CommentDto(comment));
-        }
-
-        return commentsDto;
+        return comments.map(CommentDto::new);
     }
 
     @Override
-    public CommentDto getCommentById(Long id) {
-        Comment comment = commentRepository.findById(id);
-
-        if (comment == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        return new CommentDto(comment);
+    public CommentDetailsDto getCommentById(Long id) throws ResourceNotFoundException {
+        return new CommentDetailsDto(getCommentOrThrowException(id));
     }
 
     @Override
-    public void deleteCommentById(Long id) {
-        Comment comment = commentRepository.findById(id);
+    public void deleteCommentById(Long id) throws ResourceNotFoundException {
+        Comment comment = getCommentOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                comment.getUser(), "Access denied! You don't have to access to delete this Comment"
+        );
 
-        if (comment == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+        commentRepository.delete(comment);
+    }
 
-        commentRepository.delete(comment.getId());
+    private Comment getCommentOrThrowException(long id) {
+        return commentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
+
+    private Post getPostOrThrowException(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "Id", id));
+    }
+
+    private User getUserOrThrowException(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", id));
     }
 }

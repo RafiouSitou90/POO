@@ -1,24 +1,28 @@
 package com.rafdev.prova.blog.api.service.impl;
 
-import com.rafdev.prova.blog.api.dto.CategoryDto;
+import com.rafdev.prova.blog.api.dto.category.CategoryDetailsDto;
+import com.rafdev.prova.blog.api.dto.category.CategoryDto;
+import com.rafdev.prova.blog.api.dto.post.PostDto;
 import com.rafdev.prova.blog.api.entity.Category;
+import com.rafdev.prova.blog.api.entity.Post;
 import com.rafdev.prova.blog.api.exception.ResourceAlreadyExistsException;
 import com.rafdev.prova.blog.api.exception.ResourceNotFoundException;
+import com.rafdev.prova.blog.api.pagination.CategoryPagination;
 import com.rafdev.prova.blog.api.repository.CategoryRepository;
 import com.rafdev.prova.blog.api.request.CategoryRequest;
 import com.rafdev.prova.blog.api.service.CategoryService;
 
+import com.rafdev.prova.blog.api.util.UtilityFunctions;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
     private final String resourceName = "Category";
-    private final AtomicLong idCounter = new AtomicLong(10);
     private final CategoryRepository categoryRepository;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
@@ -26,65 +30,66 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto saveCategory(CategoryRequest categoryRequest) {
-        if (categoryRepository.existsByName(categoryRequest.getName())) {
+    public CategoryDto saveCategory(CategoryRequest categoryRequest) throws ResourceAlreadyExistsException {
+
+        if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
             throw new ResourceAlreadyExistsException(resourceName, "Name", categoryRequest.getName());
         }
 
-        Category category = new Category(idCounter.incrementAndGet(), categoryRequest.getName());
-        Category categoryCreated = categoryRepository.save(category);
+        Category category = new Category(categoryRequest.getName());
 
-        return new CategoryDto(categoryCreated);
+        return new CategoryDto(categoryRepository.save(category));
     }
 
     @Override
-    public CategoryDto updateCategoryById(Long id, CategoryRequest categoryRequest) {
-        Category categoryFound = categoryRepository.findById(id);
+    public CategoryDto updateCategoryById(Long id, CategoryRequest categoryRequest) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
 
-        if (categoryFound == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
+        Category categoryFound = getCategoryOrThrowException(id);
+
+        if(!Objects.equals(categoryFound.getName().toLowerCase(), categoryRequest.getName().toLowerCase())) {
+            if (categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())) {
+                throw new ResourceAlreadyExistsException(resourceName, "Name", categoryRequest.getName());
+            }
         }
 
         categoryFound.setName(categoryRequest.getName());
 
-        Category categoryUpdated = categoryRepository.update(categoryFound);
-
-        return new CategoryDto(categoryUpdated);
+        return new CategoryDto(categoryRepository.save(categoryFound));
     }
 
     @Override
-    public List<CategoryDto> getCategories() {
-        List<CategoryDto> categoriesDto = new ArrayList<>();
-        List<Category> categories = categoryRepository.findAll();
+    public Page<CategoryDto> getCategories(CategoryPagination pagination) {
+        Pageable pageable = UtilityFunctions.getPageable(pagination);
+        Page<Category> categories = categoryRepository.findAll(pageable);
 
-        for (Category category: categories) {
-            CategoryDto categoryDto = new CategoryDto(category);
-
-            categoriesDto.add(categoryDto);
-        }
-
-        return categoriesDto;
+        return categories.map(CategoryDto::new);
     }
 
     @Override
-    public CategoryDto getCategoryById(Long id) {
-        Category category = categoryRepository.findById(id);
-
-        if (category == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
-
-        return new CategoryDto(category);
+    public CategoryDetailsDto getCategoryById(Long id) throws ResourceNotFoundException{
+        return getCategoryDtoWithPosts(getCategoryOrThrowException(id));
     }
 
     @Override
-    public void deleteCategoryById(Long id) {
-        Category category = categoryRepository.findById(id);
+    public void deleteCategoryById(Long id) throws ResourceNotFoundException {
+        categoryRepository.delete(getCategoryOrThrowException(id));
+    }
 
-        if (category == null) {
-            throw new ResourceNotFoundException(resourceName, "Id", id);
-        }
+    private Category getCategoryOrThrowException(long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "Id", id));
+    }
 
-        categoryRepository.delete(category.getId());
+    private CategoryDetailsDto getCategoryDtoWithPosts(Category category) {
+
+        Set<Post> posts = category.getPosts();
+        Set<PostDto> postsDto = new HashSet<>();
+
+        posts.forEach(post -> postsDto.add(new PostDto(post)));
+
+        return new CategoryDetailsDto(category, postsDto);
     }
 }
+
+
