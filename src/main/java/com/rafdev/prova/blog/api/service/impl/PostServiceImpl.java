@@ -81,6 +81,10 @@ public class PostServiceImpl implements PostService {
             ResourceAlreadyExistsException {
 
         Post postFound = getPostOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                postFound.getUser(),
+                "Access denied! You don't have access to update this Post"
+        );
 
         if (!Objects.equals(postFound.getTitle().toLowerCase(), postRequest.getTitle().toLowerCase())) {
             if (postRepository.existsByTitleIgnoreCase(postRequest.getTitle())) {
@@ -99,7 +103,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto updatePostById(Long id, Map<String, Object> postRequest) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+
         Post postFound = getPostOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                postFound.getUser(),
+                "Access denied! You don't have access to update this Post"
+        );
 
         Post postToPatch = new PostBuilder()
                 .withTitle(postFound.getTitle())
@@ -176,6 +185,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto publishPostById(Long id, Map<String, Object> postRequest) {
         Post postFound = getPostOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                postFound.getUser(),
+                "Access denied! You don't have access to publish this Post"
+        );
 
         postFound.setPublishedAt(LocalDateTime.now());
         postFound.setStatus(EPostStatus.PUBLISHED);
@@ -194,6 +207,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto archivePostById(Long id) throws ResourceNotFoundException {
         Post postFound = getPostOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                postFound.getUser(),
+                "Access denied! You don't have access to archive this Post"
+        );
 
         postFound.setPublishedAt(null);
         postFound.setStatus(EPostStatus.ARCHIVED);
@@ -204,6 +221,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto draftPostById(Long id) throws ResourceNotFoundException {
         Post postFound = getPostOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                postFound.getUser(),
+                "Access denied! You don't have access to draft this Post"
+        );
 
         postFound.setPublishedAt(null);
         postFound.setStatus(EPostStatus.DRAFT);
@@ -252,7 +273,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deletePostById(Long id) throws ResourceNotFoundException {
-        postRepository.delete(getPostOrThrowException(id));
+        Post postFound = getPostOrThrowException(id);
+        UtilityFunctions.denyAccessUnlessGranted(
+                postFound.getUser(),
+                "Access denied! You don't have access to update this Post"
+        );
+        postRepository.delete(postFound);
     }
 
     private PostDetailsDto getPostDtoWithComment(Post post) {

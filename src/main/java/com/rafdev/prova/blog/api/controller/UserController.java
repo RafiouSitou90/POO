@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tags;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -47,6 +48,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
     @Operation(summary = "Get Users list", description = "Get the full list paginated of users provided by the API.")
     public ResponseEntity<Page<UserDto>> getUsers(UserPagination pagination) {
         return new ResponseEntity<>(userService.getUsers(pagination), HttpStatus.OK);
