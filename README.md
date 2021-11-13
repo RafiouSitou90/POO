@@ -4,7 +4,7 @@ Blog API based on Spring Boot framework.
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/RafiouSitou90/POO?style=for-the-badge)
 
-##Default Users
+## Default Users
 <table>
     <thead>
         <tr>
@@ -48,7 +48,7 @@ There are 5 main resources.
 - Users https://prova-blog-api-demo.herokuapp.com/api/v2/users
 - Posts https://prova-blog-api-demo.herokuapp.com/api/v2/posts
 - Comments https://prova-blog-api-demo.herokuapp.com/api/v2/comments
-- Jwt Login Token https://prova-blog-api-demo.herokuapp.com/api/v2/sign-in
+- Jwt Login Token https://prova-blog-api-demo.herokuapp.com/api/v2/auth/sign-in
 
 ## Swagger Documentation
 https://prova-blog-api-demo.herokuapp.com/swagger-ui/
