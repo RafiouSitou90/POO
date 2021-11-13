@@ -16,7 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping("api/v2/admin/users")
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPER_ADMIN')")
 @Api(tags = "Administration")
 @Tags(value = @Tag(name = "Administration", description = "Administration Resources"))
